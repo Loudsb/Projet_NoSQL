@@ -6,3 +6,8 @@ Savoir qui appelle réellement la méthode handlestatement(), voir RDFParser doc
 
 Dictionnaire
 On a tout mis dans Hashmap mais comment bien la remplir ?
+
+
+
+
+Factoriser code dans handleStatement ???
