@@ -1,0 +1,8 @@
+Données passées en statique faut les passer en dynamique
+
+Savoir qui appelle réellement la méthode handlestatement(), voir RDFParser documentation
+
+
+
+Dictionnaire
+On a tout mis dans Hashmap mais comment bien la remplir ?
