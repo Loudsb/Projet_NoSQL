@@ -40,8 +40,12 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 		//ArrayList qui stocke les clés correspondant aux String du triplet dont on s'occupe
 		ArrayList<Integer> keyList = new ArrayList<>();
 
-		System.out.println("\n" + st.getSubject() + "\t " + st.getPredicate() + "\t " + st.getObject());
-		
+		System.out.println("________________________________________________________");
+
+		System.out.println("\nTriplet traité : ");
+		System.out.println(st.getSubject() + "\t " + st.getPredicate() + "\t " + st.getObject());
+
+		//On ajoute le sujet au dictionnaire
 		if(!dictionary.containsValue(String.valueOf(st.getSubject()))) {
 			dictionary.put(cle, String.valueOf(st.getSubject()));
 			keyList.add(cle);
@@ -55,7 +59,8 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 				}
 			}
 		}
-		
+
+		//On ajoute le prédicat au dictionnaire
 		if(!dictionary.containsValue(String.valueOf(st.getPredicate()))){
 			dictionary.put(cle, String.valueOf(st.getPredicate()));
 			keyList.add(cle);
@@ -69,7 +74,8 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 				}
 			}
 		}
-		
+
+		//On ajoute l'objet au dictionnaire
 		if(!dictionary.containsValue(String.valueOf(st.getObject()))){
 			dictionary.put(cle, String.valueOf(st.getObject()));
 			keyList.add(cle);
@@ -83,35 +89,42 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 				}
 			}
 		}
-
+		System.out.println("\nEtat actuel de notre dictionnaire : ");
 		System.out.println(dictionary.toString());
-		System.out.println("________________________________________________________");
 
+		//On change l'ordre des ressources dans les triplets (de 6 manières différentes) pour ensuite les donner sous leur nouvelle forme, aux index correspondants
+
+		//Index SOP
 		ArrayList<Integer> keyListSOP = new ArrayList<>();
 		keyListSOP.add(keyList.get(0));
 		keyListSOP.add(keyList.get(2));
 		keyListSOP.add(keyList.get(1));
-		
+
+		//Index PSO
 		ArrayList<Integer> keyListPSO = new ArrayList<>();
 		keyListPSO.add(keyList.get(1));
 		keyListPSO.add(keyList.get(0));
 		keyListPSO.add(keyList.get(2));
 
+		//Index POS
 		ArrayList<Integer> keyListPOS = new ArrayList<>();
 		keyListPOS.add(keyList.get(1));
 		keyListPOS.add(keyList.get(2));
 		keyListPOS.add(keyList.get(0));
 
+		//Index OSP
 		ArrayList<Integer> keyListOSP = new ArrayList<>();
 		keyListOSP.add(keyList.get(2));
 		keyListOSP.add(keyList.get(0));
 		keyListOSP.add(keyList.get(1));
-		
+
+		//Index OPS
 		ArrayList<Integer> keyListOPS = new ArrayList<>();
 		keyListOPS.add(keyList.get(2));
 		keyListOPS.add(keyList.get(1));
 		keyListOPS.add(keyList.get(0));
-		
+
+		//On rajoute le triplet qui vient d'être traité, dans nos 6 indexs (avec 6 permutations différentes)
 		System.out.println("\nIndex SPO :");
 		classeManipulationIndex.addTriplet(keyList, indexSPO);
 		System.out.println("\nIndex SOP :");
