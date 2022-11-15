@@ -22,7 +22,7 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 	public HashMap<Integer, String> dictionary = new HashMap<Integer, String>();
 
 	//Classe qui va effectuer des opération sur les 6 index nécessaires dans l'approche hexastore, créer les fichiers représentant ces index, permettre l'ajout/suppression de ressources
-	public ManipulerIndex classeManipulationIndex = ManipulerIndex.getInstance();
+	public ManipulerIndex classeManipulationIndex = new ManipulerIndex();
 
 	//Nos 6 indexs
 	private HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> indexSPO = new HashMap<>();
@@ -86,8 +86,6 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 
 		System.out.println(dictionary.toString());
 		System.out.println("________________________________________________________");
-
-		
 
 		ArrayList<Integer> keyListSOP = new ArrayList<>();
 		keyListSOP.add(keyList.get(0));
