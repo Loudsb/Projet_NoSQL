@@ -3,20 +3,11 @@ package qengine.program;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-//Classe qui contient des méthodes de manipulation d'index
-public final class ManipulerIndex {
 
-    //On ne veut pouvoir créer qu'une instance de cette classe utilitaire
-    private static ManipulerIndex instance;
+//Dès qu'on lit un nouveau triplet on actualise tous les index
+public class ManipulerIndex {
 
-    private ManipulerIndex(){}
-
-    public static ManipulerIndex getInstance() {
-        if (instance == null) {
-            instance = new ManipulerIndex();
-        }
-        return instance;
-    }
+    public ManipulerIndex(){}
 
     //Méthode qui met un triplet dans l'index demandé
     public void addTriplet(ArrayList<Integer> triplet, HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> index){
@@ -56,6 +47,6 @@ public final class ManipulerIndex {
         //On affiche l'état de l'index qui vient d'être mis à jour avec le nouveau tuple
         System.out.println(index);
 
-    }  
-
+    }
+    
 }
