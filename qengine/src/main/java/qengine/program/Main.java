@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.apache.jena.sparql.function.library.leviathan.tan;
 import org.eclipse.rdf4j.query.algebra.Projection;
 import org.eclipse.rdf4j.query.algebra.StatementPattern;
 import org.eclipse.rdf4j.query.algebra.helpers.AbstractQueryModelVisitor;
@@ -19,6 +21,8 @@ import org.eclipse.rdf4j.query.parser.sparql.SPARQLParser;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParser;
 import org.eclipse.rdf4j.rio.Rio;
+
+import riotcmd.infer;
 
 /**
  * Programme simple lisant un fichier de requête et un fichier de données.
@@ -62,27 +66,54 @@ final class Main {
 	public static void processAQuery(ParsedQuery query) {
 		List<StatementPattern> patterns = StatementPatternCollector.process(query.getTupleExpr());
 
-		System.out.println("first pattern : " + patterns.get(0));
+		/*Pour pouvoir traiter les n branches de notre étoile
+		for(int i=0; i<patterns.size(); i++){
+			System.out.println("Pattern number " + (i+1) + ": " + patterns.get(i));
+			//TODO vérifier que c'est que dans ce sens
+			System.out.println(patterns.get(i).getSubjectVar());
+			System.out.println(patterns.get(i).getPredicateVar());
+			System.out.println(patterns.get(i).getObjectVar());
 
-		System.out.println("object of the first pattern : " + patterns.get(0).getObjectVar().getValue());
+			//ON prend chaque requete puis on fait l'intersection, on fait l'intersection à chaque fois (n fois)
+			//ON fait que ce type de requête
+			
+			//System.out.println("Object of the pattern : " + patterns.get(i).getObjectVar().getValue());
 
-		System.out.println("variables to project : ");
+			//TODO recherche patterns 0 puis 1 puis n (filtre au fur et à mesure)
+
+			//On a besoin de note dictionnaire et de nos 6 index (les obtenir en paramètre et les déclarer dans le main)
+		}
+
+		System.out.println("Variables to project : ");
 
 		// Utilisation d'une classe anonyme
 		query.getTupleExpr().visit(new AbstractQueryModelVisitor<RuntimeException>() {
 
 			public void meet(Projection projection) {
-				System.out.println(projection.getProjectionElemList().getElements());
+				//On récupère uniquement la variable (v0 par exemple) sur laquelle on va projeter
+				//On fait uniquement get(0) car on suppose que l'on a des requêtes avec comme variable le sujet
+				System.out.println(projection.getProjectionElemList().getElements().get(0).getTargetName());
+
+				//TODO on prend l'ensemble des triplets trouvés et on projete uniquement sur les TargetName que l'on veut (v0)
 			}
-		});
+		});*/
+	
 	}
 
 	/**
 	 * Entrée du programme
 	 */
 	public static void main(String[] args) throws Exception {
-		parseData();
+
+		//On déclare notre instance de classe dictionnaire
+		Dictionnaire dictionary = new Dictionnaire();
+
+		//On déclarer notre instance de classe index
+		Index index = new Index();
+
+		parseData(dictionary, index);
 		parseQueries();
+
 	}
 
 	// ========================================================================
@@ -116,7 +147,6 @@ final class Main {
 
 				if (line.trim().endsWith("}")) {
 					ParsedQuery query = sparqlParser.parseQuery(queryString.toString(), baseURI);
-
 					processAQuery(query); // Traitement de la requête, à adapter/réécrire pour votre programme
 
 					queryString.setLength(0); // Reset le buffer de la requête en chaine vide
@@ -128,14 +158,21 @@ final class Main {
 	/**
 	 * Traite chaque triple lu dans {@link #dataFile} avec {@link MainRDFHandler}.
 	 */
-	private static void parseData() throws FileNotFoundException, IOException {
+	private static void parseData(Dictionnaire dictionnaire, Index index) throws FileNotFoundException, IOException {
 
 		try (Reader dataReader = new FileReader(dataFile)) {
 			// On va parser des données au format ntriples
 			RDFParser rdfParser = Rio.createParser(RDFFormat.NTRIPLES);
 
+			//On crée notre classe handler
+			MainRDFHandler handler = new MainRDFHandler();
+			
+			//A laquelle on affecte notre instance de dictionnaire et notre instance d'index pour qu'elle les remplisse
+			handler.setDictionnaire(dictionnaire);
+			handler.setIndex(index);
+
 			// On utilise notre implémentation de handler
-			rdfParser.setRDFHandler(new MainRDFHandler());
+			rdfParser.setRDFHandler(handler);
 
 			// Parsing et traitement de chaque triple par le handler
 			rdfParser.parse(dataReader, baseURI);
