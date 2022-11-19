@@ -36,9 +36,11 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 		ArrayList<Integer> tripletInteger = new ArrayList<>();
 		
 		//On récupère dans le dictionnaire String vers Integer, les entiers correspondants aux String du triplet que l'on traite
-		tripletInteger.add(dictionnaire.dictionaryStringToInteger.get(st.getSubject()));
-		tripletInteger.add(dictionnaire.dictionaryStringToInteger.get(st.getPredicate()));
-		tripletInteger.add(dictionnaire.dictionaryStringToInteger.get(st.getObject()));
+		tripletInteger.add(dictionnaire.dictionaryStringToInteger.get(st.getSubject().toString()));
+		tripletInteger.add(dictionnaire.dictionaryStringToInteger.get(st.getPredicate().toString()));
+		tripletInteger.add(dictionnaire.dictionaryStringToInteger.get(st.getObject().toString()));
+
+		System.out.println(tripletInteger.toString());
 
 		//On appelle la fonctiond d'ajout du triplet aux indexs (les triplets sont permutés dans la classe Index)
 		index.addTripletIndexes(tripletInteger);
