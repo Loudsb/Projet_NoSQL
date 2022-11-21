@@ -23,36 +23,42 @@ public class Index {
         //On crée les permutations pour les autres indexs
         ArrayList<Integer> tripletPermutation = new ArrayList<>();
 
+        //System.out.println("\nEtat de l'index SPO: ");
         addTriplet(indexSPO, triplet);
 
         tripletPermutation = new ArrayList<>();
         tripletPermutation.add(triplet.get(0));
         tripletPermutation.add(triplet.get(2));
         tripletPermutation.add(triplet.get(1));
+        //System.out.println("\nEtat de l'index SOP: ");
         addTriplet(indexSOP, tripletPermutation);
 
         tripletPermutation = new ArrayList<>();
         tripletPermutation.add(triplet.get(1));
         tripletPermutation.add(triplet.get(0));
         tripletPermutation.add(triplet.get(2));
+        //System.out.println("\nEtat de l'index PSO: ");
         addTriplet(indexPSO, tripletPermutation);
 
         tripletPermutation = new ArrayList<>();
         tripletPermutation.add(triplet.get(1));
         tripletPermutation.add(triplet.get(2));
         tripletPermutation.add(triplet.get(0));
+        //System.out.println("\nEtat de l'index POS: ");
         addTriplet(indexPOS, tripletPermutation);
 
         tripletPermutation = new ArrayList<>();
         tripletPermutation.add(triplet.get(2));
         tripletPermutation.add(triplet.get(0));
         tripletPermutation.add(triplet.get(1));
+        //System.out.println("\nEtat de l'index OSP: ");
         addTriplet(indexOSP, tripletPermutation);
 
         tripletPermutation = new ArrayList<>();
         tripletPermutation.add(triplet.get(2));
         tripletPermutation.add(triplet.get(1));
         tripletPermutation.add(triplet.get(0));
+        //System.out.println("\nEtat de l'index OPS: ");
         addTriplet(indexOPS, tripletPermutation);
 
     }
@@ -87,8 +93,68 @@ public class Index {
         index.put(triplet.get(0), hashMapArrayList);
 
         //On affiche l'état de l'index qui vient d'être mis à jour avec le nouveau tuple
-        System.out.println(index);
+        //System.out.println(index);
 
     }
+
+    //TODO nom
+    public ArrayList<Integer> findSubjectWithPOSindex(ArrayList<Integer> predicatAndObject){
+
+        HashMap<Integer, ArrayList<Integer>> Pfound = indexPOS.get(predicatAndObject.get(0));
+        ArrayList<Integer> listeOfSubject= Pfound.get(predicatAndObject.get(1));
+
+        return listeOfSubject;
+    }
+
+
+    public HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> getIndexSPO() {
+        return indexSPO;
+    }
+
+    public void setIndexSPO(HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> indexSPO) {
+        this.indexSPO = indexSPO;
+    }
+
+    public HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> getIndexSOP() {
+        return indexSOP;
+    }
+
+    public void setIndexSOP(HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> indexSOP) {
+        this.indexSOP = indexSOP;
+    }
+
+    public HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> getIndexPSO() {
+        return indexPSO;
+    }
+
+    public void setIndexPSO(HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> indexPSO) {
+        this.indexPSO = indexPSO;
+    }
+
+    public HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> getIndexPOS() {
+        return indexPOS;
+    }
+
+    public void setIndexPOS(HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> indexPOS) {
+        this.indexPOS = indexPOS;
+    }
+
+    public HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> getIndexOSP() {
+        return indexOSP;
+    }
+
+    public void setIndexOSP(HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> indexOSP) {
+        this.indexOSP = indexOSP;
+    }
+
+    public HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> getIndexOPS() {
+        return indexOPS;
+    }
+
+    public void setIndexOPS(HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> indexOPS) {
+        this.indexOPS = indexOPS;
+    }
+
+    
     
 }

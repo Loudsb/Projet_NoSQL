@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
@@ -56,36 +57,91 @@ final class Main {
 	/**
 	 * Fichier contenant des données rdf
 	 */
-	static final String dataFile = workingDir + "sample_data.nt";
+	static final String dataFile = workingDir + "100K.nt";
 
 	// ========================================================================
 
 	/**
 	 * Méthode utilisée ici lors du parsing de requête sparql pour agir sur l'objet obtenu.
 	 */
-	public static void processAQuery(ParsedQuery query) {
+	public static void processAQuery(ParsedQuery query, Dictionnaire dictionnaire, Index index) {
+
+		System.out.println("\nRequête lancée");
+
 		List<StatementPattern> patterns = StatementPatternCollector.process(query.getTupleExpr());
 
-		/*Pour pouvoir traiter les n branches de notre étoile
+		//TODO on renvoie des entiers mais faudrait des string + faudrait utiliser la projection (donnée par le prof)
+
+		//ArrayList qui contient le résultat de la requête, elle est mise à jour à chaque étape
+		ArrayList<Integer> queryResult = new ArrayList<>();
+
+		//Pour pouvoir traiter les n branches de notre étoile on itère sur les n patterns
 		for(int i=0; i<patterns.size(); i++){
-			System.out.println("Pattern number " + (i+1) + ": " + patterns.get(i));
-			//TODO vérifier que c'est que dans ce sens
-			System.out.println(patterns.get(i).getSubjectVar());
-			System.out.println(patterns.get(i).getPredicateVar());
-			System.out.println(patterns.get(i).getObjectVar());
-
-			//ON prend chaque requete puis on fait l'intersection, on fait l'intersection à chaque fois (n fois)
-			//ON fait que ce type de requête
 			
-			//System.out.println("Object of the pattern : " + patterns.get(i).getObjectVar().getValue());
+			//On récupère dans notre dictionnaire les entiers correspondant au P et au O
+			ArrayList<Integer> listOfSubject = dictionnaire.queryStringToInt(patterns.get(i).getPredicateVar().getValue().toString(), patterns.get(i).getObjectVar().getValue().toString());
+			//System.out.println("Dictionnaire, prédicat : "+listOfSubject.get(0));
+			//System.out.println("Dictionnaire, objet : "+listOfSubject.get(1));
 
-			//TODO recherche patterns 0 puis 1 puis n (filtre au fur et à mesure)
+			//Si notre dictionnaire connaît toutes les ressources de la requête, on lance la recherche dans les indes
+			if(listOfSubject.size() != 0){
+				//ArrayList qui récupère la recherche pour la branche i de notre étoile
+				//TODO changer ce nom pourri
+				ArrayList<Integer> newListOfObjects = index.findSubjectWithPOSindex(listOfSubject);
 
-			//On a besoin de note dictionnaire et de nos 6 index (les obtenir en paramètre et les déclarer dans le main)
+ 				//Dans le cas où c'est la première branche
+				if(i==0){
+
+					if(newListOfObjects == null){
+						System.out.println("Branche numéro 0 : "+" Aucun résultat trouvé dans l'index pour cette branche. On arrête les recherches");
+						//queryResult est vide à ce stade
+						break;
+					}else{
+						//On remplit notre liste de résultat, qui était jusque là vide et on affiche le résultat pour la branche 0
+						queryResult = newListOfObjects;
+						//TODO tester si pas vide + affichages
+						System.out.println("Branche numéro "+i+" : "+queryResult);
+					}
+					
+				}else{ //C'est une branche autre que la branche 0, je dois faire l'intersection entre la branche précédente et la branche courante de mon étoile
+					if(newListOfObjects == null){ //L'index n'a retourné aucun résultat pour la branche i
+						System.out.println("Branche numéro "+i+" : "+" Aucun résultat trouvé dans l'index pour cette branche. On arrête les recherches");
+						//On vide notre arrayList vide pour ensuite afficher dans le résultat de la requête, que cela n'a rien donné
+						queryResult = new ArrayList<>();
+						break;
+					}else{
+						//L'index a retourné au moins un résultat pour la branche i
+						//On fait l'intersection en retenant dans queryResult, uniquement les éléments qui sont aussi dans newListOfObjects
+						queryResult.retainAll(newListOfObjects);
+
+						
+						if(queryResult.size() !=0){
+							System.out.println("Intersection branches "+(i-1)+" et "+i+" donne : "+queryResult);
+						}else{//Si la liste est vide suite à retainAll, alors cette requête ne donnera aucun résultat (queryResult est vidée à ce stade)
+							System.out.println("Intersection branches "+(i-1)+" et "+i+" ne donne aucun résultat");
+							break;
+						}
+					}	
+				}
+
+			}else{
+				//Dans le cas où une ressource de la requête n'est pas enregsitrée dans notre dictionnaire, on peut être sûrs que cela ne donnera aucun résultat dans les indexs
+				System.out.println("Requête échouée, une des ressources de la requête n'est pas présente dans notre dictionnaire.");
+				break;
+			}
+
 		}
 
-		System.out.println("Variables to project : ");
+		//TODO quand c'est vide afficher qq chose
+		if(queryResult.size()!=0){
+			System.out.println("Résultat de la requête : "+queryResult);
+		}else{
+			System.out.println("Résultat de la requête : AUCUN RESULTAT");
+		}
 
+		//System.out.println("\nVariables to project : ");
+
+		/*TODO
 		// Utilisation d'une classe anonyme
 		query.getTupleExpr().visit(new AbstractQueryModelVisitor<RuntimeException>() {
 
@@ -111,8 +167,13 @@ final class Main {
 		//On déclarer notre instance de classe index
 		Index index = new Index();
 
+		long start = System.nanoTime();
 		parseData(dictionary, index);
-		parseQueries();
+		long stop = System.nanoTime();
+		long duree = (stop - start)/1000000;
+		System.out.println("Durée de l'exécution de notre fonction parseData() : "+duree);
+
+		parseQueries(dictionary, index);
 
 	}
 
@@ -121,7 +182,7 @@ final class Main {
 	/**
 	 * Traite chaque requête lue dans {@link #queryFile} avec {@link #processAQuery(ParsedQuery)}.
 	 */
-	private static void parseQueries() throws FileNotFoundException, IOException {
+	private static void parseQueries(Dictionnaire dictionnaire, Index index) throws FileNotFoundException, IOException {
 		/**
 		 * Try-with-resources
 		 * 
@@ -147,7 +208,7 @@ final class Main {
 
 				if (line.trim().endsWith("}")) {
 					ParsedQuery query = sparqlParser.parseQuery(queryString.toString(), baseURI);
-					processAQuery(query); // Traitement de la requête, à adapter/réécrire pour votre programme
+					processAQuery(query, dictionnaire, index); // Traitement de la requête, à adapter/réécrire pour votre programme
 
 					queryString.setLength(0); // Reset le buffer de la requête en chaine vide
 				}

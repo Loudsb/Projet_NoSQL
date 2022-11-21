@@ -25,9 +25,9 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 	@Override
 	public void handleStatement(Statement st) {
 
-		System.out.println("________________________________________________________");
-		System.out.println("\nTriplet traité : ");
-		System.out.println(st.getSubject() + "\t " + st.getPredicate() + "\t " + st.getObject());
+		//System.out.println("________________________________________________________");
+		//System.out.println("\nTriplet traité : ");
+		//System.out.println(st.getSubject() + "\t " + st.getPredicate() + "\t " + st.getObject());
 
 		//On appelle la fonction d'ajout du triplet au dictionnaire
 		dictionnaire.addTriplet(st);
@@ -40,7 +40,7 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 		tripletInteger.add(dictionnaire.dictionaryStringToInteger.get(st.getPredicate().toString()));
 		tripletInteger.add(dictionnaire.dictionaryStringToInteger.get(st.getObject().toString()));
 
-		System.out.println(tripletInteger.toString());
+		//System.out.println("\nLe triplet d'entiers obtenu : "+tripletInteger.toString()+"\n");
 
 		//On appelle la fonctiond d'ajout du triplet aux indexs (les triplets sont permutés dans la classe Index)
 		index.addTripletIndexes(tripletInteger);
