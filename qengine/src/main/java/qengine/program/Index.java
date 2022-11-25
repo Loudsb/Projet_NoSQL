@@ -80,11 +80,13 @@ public class Index {
             arrayList = hashMapArrayList.get(triplet.get(1));
         }
 
-        //J'ajoute dans l'ArrayList le dernier élément du triplet
+        //J'ajoute dans l'ArrayList le dernier élément du triple, s'il n'existe pas déjà
         //Soit je n'ai rien récupéré et on ajoute le troisième élément du triplet dans une liste vide
         //Soit j'ajoute le troisième élément du triplet à la suite dans l'arraylist récupérée
-        arrayList.add(triplet.get(2));
-
+        if(!arrayList.contains(triplet.get(2))){
+            arrayList.add(triplet.get(2));
+        }
+            
         //J'ajoute à l'hashMapArrayList le deuxième élément du triplet ainsi que l'arrayList
         hashMapArrayList.put(triplet.get(1), arrayList);
 
@@ -97,7 +99,6 @@ public class Index {
 
     }
 
-    //TODO nom
     public ArrayList<Integer> findSubjectWithPOSindex(ArrayList<Integer> predicatAndObject){
 
         HashMap<Integer, ArrayList<Integer>> Pfound = indexPOS.get(predicatAndObject.get(0));

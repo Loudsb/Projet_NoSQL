@@ -18,8 +18,6 @@ public class Dictionnaire{
     //Constructeur par défault
     public Dictionnaire(){}
 
-    
-
     //Fonction qui remplit les deux dictionnaires
     public void addTriplet(Statement st){
         
