@@ -79,40 +79,40 @@ final class Main {
 		for(int i=0; i<patterns.size(); i++){
 			
 			//On récupère dans notre dictionnaire les entiers correspondant au P et au O
-			ArrayList<Integer> listOfSubject = dictionnaire.queryStringToInt(patterns.get(i).getPredicateVar().getValue().toString(), patterns.get(i).getObjectVar().getValue().toString());
-			//System.out.println("Dictionnaire, prédicat : "+listOfSubject.get(0));
-			//System.out.println("Dictionnaire, objet : "+listOfSubject.get(1));
+			ArrayList<Integer> listOfPredicatAndObject = dictionnaire.queryStringToInt(patterns.get(i).getPredicateVar().getValue().toString(), patterns.get(i).getObjectVar().getValue().toString());
+			//System.out.println("Dictionnaire, prédicat : "+listOfPredicatAndObject.get(0));
+			//System.out.println("Dictionnaire, objet : "+listOfPredicatAndObject.get(1));
 
-			//Si notre dictionnaire connaît toutes les ressources de la requête, on lance la recherche dans les indes
-			if(listOfSubject.size() != 0){
+			//Si notre dictionnaire connaît toutes les ressources de la requête, on lance la recherche dans les index
+			if(listOfPredicatAndObject.size() != 0){
 				//ArrayList qui récupère la recherche pour la branche i de notre étoile
 				//TODO changer ce nom pourri
-				ArrayList<Integer> newListOfObjects = index.findSubjectWithPOSindex(listOfSubject);
+				ArrayList<Integer> listOfSubjects = index.findSubjectWithPOSindex(listOfPredicatAndObject);
 
  				//Dans le cas où c'est la première branche
 				if(i==0){
 
-					if(newListOfObjects == null){
-						System.out.println("Branche numéro 0 : "+" Aucun résultat trouvé dans l'index pour cette branche. On arrête les recherches");
+					if(listOfSubjects == null){
+						System.out.println("Branche numéro 0 : Aucun résultat trouvé dans l'index pour cette branche. On arrête les recherches");
 						//queryResult est vide à ce stade
 						break;
 					}else{
 						//On remplit notre liste de résultat, qui était jusque là vide et on affiche le résultat pour la branche 0
-						queryResult = newListOfObjects;
+						queryResult = listOfSubjects;
 						//TODO tester si pas vide + affichages
-						System.out.println("Branche numéro "+i+" : "+queryResult);
+						System.out.println("Résultat branche numéro "+ i +" : "+ queryResult);
 					}
 					
 				}else{ //C'est une branche autre que la branche 0, je dois faire l'intersection entre la branche précédente et la branche courante de mon étoile
-					if(newListOfObjects == null){ //L'index n'a retourné aucun résultat pour la branche i
-						System.out.println("Branche numéro "+i+" : "+" Aucun résultat trouvé dans l'index pour cette branche. On arrête les recherches");
+					if(listOfSubjects == null){ //L'index n'a retourné aucun résultat pour la branche i
+						System.out.println("Branche numéro "+i+" : Aucun résultat trouvé dans l'index pour cette branche. On arrête les recherches");
 						//On vide notre arrayList vide pour ensuite afficher dans le résultat de la requête, que cela n'a rien donné
 						queryResult = new ArrayList<>();
 						break;
 					}else{
 						//L'index a retourné au moins un résultat pour la branche i
-						//On fait l'intersection en retenant dans queryResult, uniquement les éléments qui sont aussi dans newListOfObjects
-						queryResult.retainAll(newListOfObjects);
+						//On fait l'intersection en retenant dans queryResult, uniquement les éléments qui sont aussi dans listOfSubjects
+						queryResult.retainAll(listOfSubjects);
 
 						
 						if(queryResult.size() !=0){
@@ -167,6 +167,8 @@ final class Main {
 		//On déclarer notre instance de classe index
 		Index index = new Index();
 
+
+
 		long start = System.nanoTime();
 		parseData(dictionary, index);
 		long stop = System.nanoTime();
@@ -179,6 +181,7 @@ final class Main {
 
 	// ========================================================================
 
+	//TODO rajouter String queryFile et String dataFile dans les paramètre de la fonction pour pouvoir les passer en ligne de commande
 	/**
 	 * Traite chaque requête lue dans {@link #queryFile} avec {@link #processAQuery(ParsedQuery)}.
 	 */
@@ -216,6 +219,7 @@ final class Main {
 		}
 	}
 
+	//TODO rajouter String dataFile dans les paramètre de la fonction pour pouvoir les passer en ligne de commande
 	/**
 	 * Traite chaque triple lu dans {@link #dataFile} avec {@link MainRDFHandler}.
 	 */
