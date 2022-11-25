@@ -23,24 +23,16 @@ public class Parser {
 
     static final String baseURI = null;
 
-	/**
-	 * Votre répertoire de travail où vont se trouver les fichiers à lire
-	 */
-	static final String workingDir = "data/";
+	//Votre répertoire de travail où vont se trouver les fichiers à lire
+	//static final String workingDir = "data/";
 
-	/**
-	 * Fichier contenant les requêtes sparql
-	 */
-	static final String queryFile = workingDir + "sample_query.queryset";
+	//Variable qui va contenir le chemin vers le fichier contenant les requêtes sparql
+	static String queryFile;
 
-	/**
-	 * Fichier contenant des données rdf
-	 */
-	static final String dataFile = workingDir + "sample_data.nt";
+	//Variable qui va contenir le chemin vers le fichier contenant des données rdf
+	static String dataFile;
 
-	/**
-	 * Traite chaque requête lue dans {@link #queryFile} avec {@link #processAQuery(ParsedQuery)}.
-	 */
+	//Méthode qui traite chaque requête lue dans {@link #queryFile} avec {@link #processAQuery(ParsedQuery)}.
 	public void parseQueries(Dictionnaire dictionnaire, Index index) throws FileNotFoundException, IOException {
 		/**
 		 * Try-with-resources

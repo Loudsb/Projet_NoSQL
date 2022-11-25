@@ -40,8 +40,9 @@ public class CommandLineHandler {
 		Option queries   = Option.builder("queries")
                          .argName("/chemin/vers/dossier/requetes")
                          .hasArg()
-                         .desc("Donner le chemin vers le dossier de requêtes")
+                         .desc("Donner le chemin vers le fichier de requêtes")
                          .build();
+						 //Fichier et non dossier vers requête !
 						 
 		Option data   = Option.builder("data")
                          .argName("/chemin/vers/dossier/requetes")
@@ -82,17 +83,19 @@ public class CommandLineHandler {
 		
 
 		if(line.hasOption("queries")) {
-    		
+			//queryFile = workingDir + "sample_query.queryset";
+			Parser.queryFile = line.getOptionValue("queries");
 		}
 		else {
-    		// print the date
+    		Parser.queryFile = "data/sample_query.queryset";
 		}
 
 		if(line.hasOption("data")) {
-    		// print the date and time
+    		//dataFile = workingDir + "sample_data.nt";
+			Parser.dataFile = line.getOptionValue("data");
 		}
 		else {
-    		// print the date
+    		Parser.dataFile = "data/sample_data.nt";
 		}
 
 		if(line.hasOption("output")) {

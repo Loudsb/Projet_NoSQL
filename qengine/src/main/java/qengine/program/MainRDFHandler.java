@@ -1,9 +1,7 @@
 package qengine.program;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.query.algebra.In;
 import org.eclipse.rdf4j.rio.helpers.AbstractRDFHandler;
 
 /**
