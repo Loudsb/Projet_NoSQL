@@ -17,6 +17,17 @@ import org.eclipse.rdf4j.query.parser.sparql.SPARQLParser;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParser;
 import org.eclipse.rdf4j.rio.Rio;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
 
 
 public class Parser {
@@ -31,6 +42,10 @@ public class Parser {
 
 	//Variable qui va contenir le chemin vers le fichier contenant des données rdf
 	static String dataFile;
+
+	//Variable booléenne qui permet d'activer ou non la vérification de la correction et complétude du système en utilisant Jena comme un oracle
+	static boolean JenaVerification;
+
 
 	//Méthode qui traite chaque requête lue dans {@link #queryFile} avec {@link #processAQuery(ParsedQuery)}.
 	public void parseQueries(Dictionnaire dictionnaire, Index index) throws FileNotFoundException, IOException {
@@ -60,6 +75,7 @@ public class Parser {
 				if (line.trim().endsWith("}")) {
 					ParsedQuery query = sparqlParser.parseQuery(queryString.toString(), baseURI);
 					processAQuery(query, dictionnaire, index); // Traitement de la requête, à adapter/réécrire pour votre programme
+					processAQueryWithJena(query);
 
 					queryString.setLength(0); // Reset le buffer de la requête en chaine vide
 				}
@@ -67,7 +83,6 @@ public class Parser {
 		}
 	}
 
-	//TODO rajouter String dataFile dans les paramètre de la fonction pour pouvoir les passer en ligne de commande
 	/**
 	 * Traite chaque triple lu dans {@link #dataFile} avec {@link MainRDFHandler}.
 	 */
@@ -96,8 +111,6 @@ public class Parser {
 	 * Méthode utilisée ici lors du parsing de requête sparql pour agir sur l'objet obtenu.
 	 */
 	public static void processAQuery(ParsedQuery query, Dictionnaire dictionnaire, Index index) {
-
-         //TODO faire des affichages + beau
 
 		List<StatementPattern> patterns = StatementPatternCollector.process(query.getTupleExpr());
 
@@ -166,6 +179,35 @@ public class Parser {
 		}else{
 			System.out.println("Résultat de la requête : AUCUN RESULTAT");
 		}
+	
+	}
+
+	//Méthode qui permet d'utiliser Jena comme un Oracle pour avoir le résultat à la requête passée en paramètre
+	public static void processAQueryWithJena(ParsedQuery queryToExecute){
+
+		//Jena offre des API permettant d'effectuer des requêtes SPARQL depuis un programme Java
+		//Il existe dans Jena deux manières procéder pour effectuer des requêtes SPARQL
+		//l'API ARQ 'classique', compatible avec les versions antérieures de Jena
+		//l'API RDFConnection introduite avec la version 3.3 de Jena, qui d'une certaine manière rend la programmation moins lourde et exploite au mieux les possibilité de Java 8.
+    	
+
+		//On crée un modèle RDF
+		Model model = ModelFactory.createDefaultModel();
+		// On lit et on ajoute les ressources d'un fichier .csv, dans notre modèle
+		model.read("sample_data.nt");
+
+		String queryString = " .... ";
+		Query query = QueryFactory.create(queryString);
+		try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
+			ResultSet results = qexec.execSelect();
+			for (; results.hasNext();) {
+				QuerySolution soln = results.nextSolution();
+				RDFNode x = soln.get("varName"); // Get a result variable by name.
+				Resource r = soln.getResource("VarR"); // Get a result variable - must be a resource
+				Literal l = soln.getLiteral("VarL"); // Get a result variable - must be a literal
+				System.out.println(x);
+			}
+  		}
 	
 	}
     

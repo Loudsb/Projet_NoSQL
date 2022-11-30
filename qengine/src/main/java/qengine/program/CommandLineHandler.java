@@ -106,10 +106,10 @@ public class CommandLineHandler {
 		}
 
 		if(line.hasOption("Jena")) {
-    		// print the date and time
+			Parser.JenaVerification = true;
 		}
 		else {
-    		// print the date
+    		Parser.JenaVerification = false;
 		}
 
 		if(line.hasOption("warm")) {
