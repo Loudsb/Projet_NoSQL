@@ -1,6 +1,9 @@
 package qengine.program;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.jena.ext.com.google.common.base.Stopwatch;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.rio.helpers.AbstractRDFHandler;
 
@@ -20,11 +23,17 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 
 	public Index index;
 
+	public static long totalTimeDico = 0;
+	public static long totalTimeIndex = 0;
+
 	@Override
 	public void handleStatement(Statement st) {
 
+		Stopwatch stopwatchDico = Stopwatch.createStarted();
 		//On appelle la fonction d'ajout du triplet au dictionnaire
 		dictionnaire.addTriplet(st);
+		long endStopwatchDico = stopwatchDico.elapsed(TimeUnit.MILLISECONDS);
+		totalTimeDico += endStopwatchDico;
 
 		//ArrayList qui stocke les clés correspondant aux String du triplet dont on s'occupe
 		ArrayList<Integer> tripletInteger = new ArrayList<>();
@@ -34,9 +43,14 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 		tripletInteger.add(dictionnaire.dictionaryStringToInteger.get(st.getPredicate().toString()));
 		tripletInteger.add(dictionnaire.dictionaryStringToInteger.get(st.getObject().toString()));
 
+		//On démarre le chrono pour l'ajout dans l'index
+		Stopwatch stopwatchIndex = Stopwatch.createStarted();
+		
 		//On appelle la fonction d'ajout du triplet aux indexs (les triplets sont permutés dans la classe Index)
 		index.addTripletIndexes(tripletInteger);
-	
+		
+		long endStopwatchIndex = stopwatchIndex.elapsed(TimeUnit.MILLISECONDS);
+		totalTimeIndex += endStopwatchIndex;
 	};
 
 	public Dictionnaire getDictionnaire() {
@@ -53,6 +67,14 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 
 	public void setIndex(Index index) {
 		this.index = index;
+	}
+
+	public static long getTotalTimeDico(){
+		return totalTimeDico;
+	}
+
+	public static long getTotalTimeIndex(){
+		return totalTimeIndex;
 	}
 
 }

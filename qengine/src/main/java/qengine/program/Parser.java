@@ -46,6 +46,12 @@ public class Parser {
 	//Variable booléenne qui permet d'activer ou non la vérification de la correction et complétude du système en utilisant Jena comme un oracle
 	static boolean JenaVerification;
 
+	//Variable qui compte le nombre de requête
+	static int nbRequest = 0;
+
+	//Variable qui stock le temps qu'on a mis à lire les requêtes
+	static long totalTimeR = 0;
+
 
 	//Méthode qui traite chaque requête lue dans {@link #queryFile} avec {@link #processAQuery(ParsedQuery)}.
 	public void parseQueries(Dictionnaire dictionnaire, Index index) throws FileNotFoundException, IOException {
@@ -54,6 +60,9 @@ public class Parser {
 		 * 
 		 * @see <a href="https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html">Try-with-resources</a>
 		 */
+		//Variable qui donne le moment où on commence à lire les requêtes pour calculer le temps total qu'on a mis à toutes les lire
+		long debutTimeRequest = System.currentTimeMillis(); //TODO Je sais pas si on le met ici ou juste avant le while
+		
 		/*
 		 * On utilise un stream pour lire les lignes une par une, sans avoir à toutes les stocker
 		 * entièrement dans une collection.
@@ -75,12 +84,19 @@ public class Parser {
 				if (line.trim().endsWith("}")) {
 					ParsedQuery query = sparqlParser.parseQuery(queryString.toString(), baseURI);
 					processAQuery(query, dictionnaire, index); // Traitement de la requête, à adapter/réécrire pour votre programme
-					processAQueryWithJena(query);
+					//processAQueryWithJena(query);
 
 					queryString.setLength(0); // Reset le buffer de la requête en chaine vide
+					
+					//Pour compter combien il y a de requêtes au total:
+					nbRequest++;
 				}
 			}
 		}
+
+		long endTimeRequest = System.currentTimeMillis();
+		totalTimeR = endTimeRequest - debutTimeRequest;
+
 	}
 
 	/**
@@ -109,6 +125,7 @@ public class Parser {
 
     /**
 	 * Méthode utilisée ici lors du parsing de requête sparql pour agir sur l'objet obtenu.
+	 * Elle retourne une liste qui contient tous les résulats des requêtes pour pouvoir les mettre dans le fichier CSV
 	 */
 	public static void processAQuery(ParsedQuery query, Dictionnaire dictionnaire, Index index) {
 
@@ -167,7 +184,7 @@ public class Parser {
 				}
 
 			}else{
-				//Dans le cas où une ressource de la requête n'est pas enregis	trée dans notre dictionnaire, on peut être sûrs que cela ne donnera aucun résultat dans les indexs
+				//Dans le cas où une ressource de la requête n'est pas enregistrée dans notre dictionnaire, on peut être sûrs que cela ne donnera aucun résultat dans les indexs
 				//System.out.println("Requête échouée, une des ressources de la requête n'est pas présente dans notre dictionnaire.");
 				break;
 			}
@@ -209,6 +226,14 @@ public class Parser {
 			}
   		}
 	
+	}
+
+	public static int getnbRequest() {
+        return nbRequest;
+    }
+
+	public static long getTotalTimeR(){
+		return totalTimeR;
 	}
     
 }
