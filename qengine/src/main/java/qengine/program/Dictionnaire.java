@@ -15,7 +15,7 @@ public class Dictionnaire{
 
     public int cle = 0;
 
-    //Constructeur par défault
+    // Constructeur par défault
     public Dictionnaire(){}
 
     //Fonction qui remplit les deux dictionnaires
@@ -76,11 +76,9 @@ public class Dictionnaire{
     }
 
 
-
     public void setDictionaryStringToInteger(HashMap<String, Integer> dictionaryStringToInteger) {
         this.dictionaryStringToInteger = dictionaryStringToInteger;
     }
-
 
 
     public HashMap<Integer, String> getDictionaryIntegerToString() {
@@ -88,17 +86,14 @@ public class Dictionnaire{
     }
 
 
-
     public void setDictionaryIntegerToString(HashMap<Integer, String> dictionaryIntegerToString) {
         this.dictionaryIntegerToString = dictionaryIntegerToString;
     }
 
 
-
     public int getCle() {
         return cle;
     }
-
 
 
     public void setCle(int cle) {

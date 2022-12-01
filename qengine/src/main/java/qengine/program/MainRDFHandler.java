@@ -23,15 +23,20 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 
 	public Index index;
 
+	// Variables pour stocker le temps qu'on met à créer les dicos et les indexs
 	public static long totalTimeDico = 0;
 	public static long totalTimeIndex = 0;
+	public static int cptTriplet = 0;
 
 	@Override
 	public void handleStatement(Statement st) {
 
+		// Chrono pour calculer le temps qu'on met à remplir le dictionnaire
 		Stopwatch stopwatchDico = Stopwatch.createStarted();
+
 		//On appelle la fonction d'ajout du triplet au dictionnaire
 		dictionnaire.addTriplet(st);
+
 		long endStopwatchDico = stopwatchDico.elapsed(TimeUnit.MILLISECONDS);
 		totalTimeDico += endStopwatchDico;
 
@@ -43,7 +48,7 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 		tripletInteger.add(dictionnaire.dictionaryStringToInteger.get(st.getPredicate().toString()));
 		tripletInteger.add(dictionnaire.dictionaryStringToInteger.get(st.getObject().toString()));
 
-		//On démarre le chrono pour l'ajout dans l'index
+		// Chrono pour calculer le temps qu'on met à créer les indexs
 		Stopwatch stopwatchIndex = Stopwatch.createStarted();
 		
 		//On appelle la fonction d'ajout du triplet aux indexs (les triplets sont permutés dans la classe Index)
@@ -51,6 +56,10 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 		
 		long endStopwatchIndex = stopwatchIndex.elapsed(TimeUnit.MILLISECONDS);
 		totalTimeIndex += endStopwatchIndex;
+
+		// On incrémente le compteur de Triplets
+		cptTriplet++;
+
 	};
 
 	public Dictionnaire getDictionnaire() {
@@ -75,6 +84,10 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 
 	public static long getTotalTimeIndex(){
 		return totalTimeIndex;
+	}
+
+	public static int getCptTriplet(){
+		return cptTriplet;
 	}
 
 }

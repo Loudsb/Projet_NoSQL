@@ -1,5 +1,7 @@
 package qengine.program;
 
+import java.util.Scanner;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -87,7 +89,11 @@ public class CommandLineHandler {
 			Parser.queryFile = line.getOptionValue("queries");
 		}
 		else {
-    		Parser.queryFile = "data/sample_query.queryset";
+			/*System.out.println("Veuillez entrer le chemin absolu vers votre fichier de requêtes");
+			Scanner scanner = new Scanner(System.in);
+			String chemin = scanner.nextLine();
+    		Parser.queryFile = chemin;*/
+			Parser.queryFile = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/STAR_ALL_workload.queryset";
 		}
 
 		if(line.hasOption("data")) {
@@ -95,7 +101,11 @@ public class CommandLineHandler {
 			Parser.dataFile = line.getOptionValue("data");
 		}
 		else {
-    		Parser.dataFile = "data/sample_data.nt";
+    		/*System.out.println("Veuillez entrer le chemin absolu vers votre fichier de ressources");
+			Scanner scanner = new Scanner(System.in);
+			String chemin = scanner.nextLine();
+    		Parser.dataFile = chemin;*/
+			Parser.dataFile = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/100K.nt";
 		}
 
 		if(line.hasOption("output")) {
@@ -106,14 +116,16 @@ public class CommandLineHandler {
 		}
 
 		if(line.hasOption("Jena")) {
+			//On active la vérification avec Jena
 			Parser.JenaVerification = true;
 		}
 		else {
+			//On n'active pas la vérification avec Jena
     		Parser.JenaVerification = false;
 		}
 
 		if(line.hasOption("warm")) {
-    		// print the date and time
+    		int pourcentage = Integer.parseInt(line.getOptionValue("X"));
 		}
 		else {
     		// print the date
