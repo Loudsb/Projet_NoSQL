@@ -18,7 +18,6 @@ import org.eclipse.rdf4j.query.parser.sparql.SPARQLParser;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParser;
 import org.eclipse.rdf4j.rio.Rio;
-import org.apache.jena.Jena;
 import org.apache.jena.ext.com.google.common.base.Stopwatch;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -26,18 +25,12 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
-import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.Resource;
 
 public class Parser {
 
 	static final String baseURI = null;
-
-	// Votre répertoire de travail où vont se trouver les fichiers à lire
-	// static final String workingDir = "data/";
 
 	// Variable qui va contenir le chemin vers le fichier contenant les requêtes
 	// sparql
@@ -62,19 +55,17 @@ public class Parser {
 	// Variable qui stock combien de temps on a mis à lire notre fichier de données
 	static long totalTimeData = 0;
 
-
-
-
 	// Méthode qui traite chaque requête lue dans {@link #queryFile} avec {@link
 	// #processAQuery(ParsedQuery)}.
-	public ArrayList<String> parseQueries(Dictionnaire dictionnaire, Index index) throws FileNotFoundException, IOException {
+	public ArrayList<String> parseQueries(Dictionnaire dictionnaire, Index index)
+			throws FileNotFoundException, IOException {
 		/**
 		 * Try-with-resources
 		 * 
 		 * @see <a href=
 		 *      "https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html">Try-with-resources</a>
 		 */
-		
+
 		/*
 		 * On utilise un stream pour lire les lignes une par une, sans avoir à toutes
 		 * les stocker
@@ -83,25 +74,25 @@ public class Parser {
 		// Chrono pour calculer le temps qu'on met à lire notre fichier de données
 		Stopwatch stopwatchData = Stopwatch.createStarted();
 
-		//L'ArrayList qui va contenir l'ensemble des résultats, que l'on va ensuite mettre dans un fichier .csv
-		ArrayList<String> resultsForCSV = new ArrayList<>();
-
-		//Les deux ArrayList qui vont contenir nos résultats et ceux de Jena, pour que l'on compare
+		// Les deux ArrayList qui vont contenir nos résultats et ceux de Jena, pour que
+		// l'on compare
+		ArrayList<ArrayList<String>> listResultprocessAQuery = new ArrayList<>();
+		ArrayList<String> ourResultsForCSV = new ArrayList<>();
 		ArrayList<String> ourResults = new ArrayList<>();
 		ArrayList<String> jenaResults = new ArrayList<>();
 
 		try (Stream<String> lineStream = Files.lines(Paths.get(queryFile))) {
-			
+
 			long endTimeData = stopwatchData.elapsed(TimeUnit.MICROSECONDS);
 			totalTimeData += endTimeData;
 
 			SPARQLParser sparqlParser = new SPARQLParser();
 			Iterator<String> lineIterator = lineStream.iterator();
 			StringBuilder queryString = new StringBuilder();
-			
+
 			// Chrono pour calculer le temps qu'on met à remplir les requêtes
 			Stopwatch stopwatchQueryFill = Stopwatch.createStarted();
-			
+
 			while (lineIterator.hasNext())
 			/*
 			 * On stocke plusieurs lignes jusqu'à ce que l'une d'entre elles se termine par
@@ -118,22 +109,24 @@ public class Parser {
 					// Chrono pour calculer le temps qu'on met à évaluer les requêtes
 					Stopwatch startStopwatchQuery = Stopwatch.createStarted();
 
-					//Traitement de la requête
-					ourResults = processAQuery(query, dictionnaire, index);
-					resultsForCSV.addAll(ourResults);
+					// Traitement de la requête
+					listResultprocessAQuery = processAQuery(query, dictionnaire, index);
+					ourResultsForCSV.addAll(listResultprocessAQuery.get(0));
+					ourResults = listResultprocessAQuery.get(1);
 
 					long endStopwatchQuery = startStopwatchQuery.elapsed(TimeUnit.MILLISECONDS);
-					stopwatchQuery+= endStopwatchQuery;
+					stopwatchQuery += endStopwatchQuery;
 
-					//Si l'option Jena est activée on vérifie l'exactitude des résultats renvoyés par notre système d'évaluation par rapport à ceux renvoyés par Jena
-					if(JenaVerification){
+					// Si l'option Jena est activée on vérifie l'exactitude des résultats renvoyés
+					// par notre système d'évaluation par rapport à ceux renvoyés par Jena
+					if (JenaVerification) {
 						jenaResults = processAQueryWithJena(queryString.toString());
-					}
 
-					if(jenaResults.containsAll(ourResults)){
-						//System.out.println("Résultats de notre système validés !\n\n");
-					}else{
-						//System.out.println("Résultats de notre système : FAUX\n\n");
+						if (jenaResults.containsAll(ourResults)) {
+							System.out.println("Résultats de notre système validés !\n\n");
+						} else {
+							System.out.println("Résultats de notre système : FAUX\n\n");
+						}
 					}
 
 					queryString.setLength(0); // Reset le buffer de la requête en chaine vide
@@ -147,7 +140,7 @@ public class Parser {
 			totalTimeR += endTimeRequest;
 		}
 
-		return resultsForCSV;
+		return ourResultsForCSV;
 
 	}
 
@@ -182,11 +175,13 @@ public class Parser {
 	 * Elle retourne une liste qui contient tous les résulats des requêtes pour
 	 * pouvoir les mettre dans le fichier CSV
 	 */
-	public static ArrayList<String> processAQuery(ParsedQuery query, Dictionnaire dictionnaire, Index index) {
+	public static ArrayList<ArrayList<String>> processAQuery(ParsedQuery query, Dictionnaire dictionnaire, Index index) {
 
+		ArrayList<ArrayList<String>> twoLists = new ArrayList<>();
 		ArrayList<String> OurSystemResults = new ArrayList<>();
+		ArrayList<String> OurSystemResultsForCSV = new ArrayList<>();
 
-		//System.out.println("Requête : "+query);
+		System.out.println("Requête : "+query);
 
 		List<StatementPattern> patterns = StatementPatternCollector.process(query.getTupleExpr());
 
@@ -265,21 +260,25 @@ public class Parser {
 				// pas présente dans notre dictionnaire.");
 				break;
 			}
-
 		}
 
 		if (queryResult.size() != 0) {
-			for(Integer resultat : queryResult){
-				System.out.println("Résultat requête (notre système) : "+dictionnaire.getDictionaryIntegerToString().get(resultat));
+			for (Integer resultat : queryResult) {
+				System.out.println("Résultat requête (notre système) : "
+						+ dictionnaire.getDictionaryIntegerToString().get(resultat));
+				OurSystemResultsForCSV.add(dictionnaire.getDictionaryIntegerToString().get(resultat));
 				OurSystemResults.add(dictionnaire.getDictionaryIntegerToString().get(resultat));
 			}
-			OurSystemResults.add("");
+			OurSystemResultsForCSV.add("");
 		} else {
 			System.out.println("Résultat requête (notre système) : AUCUN RESULTAT");
-			OurSystemResults.add("empty");
+			OurSystemResultsForCSV.add("empty");
 		}
 
-		return OurSystemResults;
+		twoLists.add(OurSystemResultsForCSV);
+		twoLists.add(OurSystemResults);
+
+		return twoLists;
 	}
 
 	// Méthode qui permet d'utiliser Jena comme un Oracle pour avoir le résultat à
@@ -307,11 +306,8 @@ public class Parser {
 			ResultSet results = qexec.execSelect();
 			for (; results.hasNext();) {
 				QuerySolution soln = results.nextSolution();
-				//RDFNode x = soln.get("varName"); // Get a result variable by name.
-				//Resource r = soln.getResource("VarR"); // Get a result variable - must be a resource
-				//Literal l = soln.getLiteral("VarL"); // Get a result variable - must be a literal
-				//System.out.println("Résultat requête (Jena) : "+soln.getResource("?v0"));
 				JenaResults.add(soln.getResource("?v0").toString());
+				System.out.println("Résultat requête (Jena) : "+soln.getResource("?v0").toString());
 			}
 		}
 
@@ -327,11 +323,11 @@ public class Parser {
 		return totalTimeR;
 	}
 
-	public static long getStopWatchQuery(){
+	public static long getStopWatchQuery() {
 		return stopwatchQuery;
 	}
 
-	public static long getTotalTimeData(){
+	public static long getTotalTimeData() {
 		return totalTimeData;
 	}
 

@@ -63,6 +63,12 @@ public class CommandLineHandler {
                          .hasArg()
 						 .desc("utilise un échantillon des requêtes en entrée (prises au hasard) correspondant au pourcentage 'X' pour chauffer le système")
                          .build();
+		
+		Option export_query_results = Option.builder("export_query_results")
+                         .argName("/chemin/vers/dossier/resultat")
+                         .hasArg()
+						 .desc("exporte les résultats des requêtes dans un fichier csv séparé")
+                         .build();
 
 
 
@@ -73,16 +79,13 @@ public class CommandLineHandler {
 		options.addOption(Jena);
 		options.addOption(warm);
 		options.addOption(shuffle);
+		options.addOption(export_query_results);
 
 		return options;
 	}
     
 	//Méthode qui agit en fonction des arguments donné en ligne de commande par l'utilisateur
 	public static void usingArgs(CommandLine line){
-
-		//TODO soit on met ça et on passe arg puis depuis les if else on appelle les méthode sappropriée des autres classes
-		//TODO soit on fait que if else modifie juste des variables et ensuite dans le main on affecte
-		
 
 		if(line.hasOption("queries")) {
 			//queryFile = workingDir + "sample_query.queryset";
@@ -93,7 +96,7 @@ public class CommandLineHandler {
 			Scanner scanner = new Scanner(System.in);
 			String chemin = scanner.nextLine();
     		Parser.queryFile = chemin;*/
-			Parser.queryFile = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/STAR_ALL_workload.queryset";
+			Parser.queryFile = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/sample_query.queryset";
 		}
 
 		if(line.hasOption("data")) {
@@ -105,14 +108,14 @@ public class CommandLineHandler {
 			Scanner scanner = new Scanner(System.in);
 			String chemin = scanner.nextLine();
     		Parser.dataFile = chemin;*/
-			Parser.dataFile = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/100K.nt";
+			Parser.dataFile = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/sample_data.nt";
 		}
 
 		if(line.hasOption("output")) {
-    		// print the date and time
+    		CSV.directoryPathOutPut = line.getOptionValue("output");
 		}
 		else {
-    		// print the date
+    		CSV.directoryPathOutPut = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/";
 		}
 
 		if(line.hasOption("Jena")) {
@@ -136,6 +139,17 @@ public class CommandLineHandler {
 		}
 		else {
     		// print the date
+		}
+
+		if(line.hasOption("export_query_results")) {
+    		CSV.directoryPathQueryResults = line.getOptionValue("export_query_results");
+		}
+		else {
+    		/*System.out.println("Veuillez entrer le chemin absolu vers le dossier où vous voulez mettre le csv contenant les résultats");
+			Scanner scanner = new Scanner(System.in);
+			String chemin = scanner.nextLine();
+    		Parser.dataFile = chemin;*/
+			CSV.directoryPathQueryResults = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/";
 		}
 
 	}
