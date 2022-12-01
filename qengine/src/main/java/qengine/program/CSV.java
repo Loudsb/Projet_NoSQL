@@ -34,14 +34,17 @@ public class CSV {
 		int nbRequest = Parser.getnbRequest();
 		System.out.println("Nombre de requêtes : " + nbRequest);
 
-		//temps de lecture des données (ms) - OK
+		//Temps de lecture des données (ms) - OK
 		long timeData = Parser.getTotalTimeData();
-		String conversion = String.valueOf(timeData);
-		String unite = conversion.substring(0,1);
-		String virgule = conversion.substring(1, 4);
 
-		System.out.println("Temps de lecture des données : " + unite + "," + virgule +" ms");
-		
+		//Pour mettre les chiffres après la virgule
+		//String conversion = String.valueOf(timeData);
+		//String unite = conversion.substring(0,1); 
+		//String virgule = conversion.substring(1, 4);
+		//System.out.println("Temps de lecture des données : " + unite + "," + virgule +" ms");
+
+		System.out.println("Temps de lecture des données : " + timeData+ " ms");
+
 		//temps de lecture des requêtes (ms) - OK - temps exact que met le programme à lire les lignes des requêtes dans le fichier qui les contients (dans parseQueries)
 		long timeRequest = Parser.getTotalTimeR();
 		System.out.println("Temps de lecture des requêtes : " + timeRequest + " ms");
