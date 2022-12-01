@@ -103,7 +103,6 @@ public class Index {
 
         HashMap<Integer, ArrayList<Integer>> Pfound = indexPOS.get(predicatAndObject.get(0));
         ArrayList<Integer> listeOfSubject= Pfound.get(predicatAndObject.get(1));
-
         return listeOfSubject;
     }
 

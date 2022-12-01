@@ -122,7 +122,7 @@ public class Parser {
 					if (JenaVerification) {
 						jenaResults = processAQueryWithJena(queryString.toString());
 
-						if (jenaResults.containsAll(ourResults)) {
+						if (ourResults.containsAll(jenaResults) && jenaResults.containsAll(ourResults)) {
 							System.out.println("Résultats de notre système validés !\n\n");
 						} else {
 							System.out.println("Résultats de notre système : FAUX\n\n");
@@ -212,8 +212,7 @@ public class Parser {
 				if (i == 0) {
 
 					if (listOfSubjects == null) {
-						// System.out.println("Branche numéro 0 : Aucun résultat trouvé dans l'index
-						// pour cette branche. On arrête les recherches");
+						System.out.println("Branche numéro 0 : Aucun résultat trouvé dans l'index pour cette branche. On arrête les recherches");
 						// queryResult est vide à ce stade
 						break;
 					} else {
@@ -221,7 +220,7 @@ public class Parser {
 						// résultat pour la branche 0
 						queryResult = listOfSubjects;
 						// TODO tester si pas vide + affichages
-						// System.out.println("Résultat branche numéro "+ i +" : "+ queryResult);
+						System.out.println("Résultat branche numéro "+ i +" : "+ queryResult);
 					}
 
 				} else { // C'est une branche autre que la branche 0, je dois faire l'intersection entre
@@ -287,14 +286,6 @@ public class Parser {
 
 		ArrayList<String> JenaResults = new ArrayList<>();
 
-		// Jena offre des API permettant d'effectuer des requêtes SPARQL depuis un
-		// programme Java
-		// Il existe dans Jena deux manières procéder pour effectuer des requêtes SPARQL
-		// l'API ARQ 'classique', compatible avec les versions antérieures de Jena
-		// l'API RDFConnection introduite avec la version 3.3 de Jena, qui d'une
-		// certaine manière rend la programmation moins lourde et exploite au mieux les
-		// possibilité de Java 8.
-
 		// On crée un modèle RDF
 		Model model = ModelFactory.createDefaultModel();
 		// On lit et on ajoute les ressources d'un fichier .csv, dans notre modèle
@@ -310,9 +301,7 @@ public class Parser {
 				System.out.println("Résultat requête (Jena) : "+soln.getResource("?v0").toString());
 			}
 		}
-
 		return JenaResults;
-
 	}
 
 	public static int getnbRequest() {

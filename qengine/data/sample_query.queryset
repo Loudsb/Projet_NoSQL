@@ -16,3 +16,8 @@ SELECT ?v0 WHERE {
 SELECT ?v0 WHERE {
     ?v0 <http://db.uwaterloo.ca/~galuc/wsdbm/userId> "9764726" .
     ?v0 <http://schema.org/birthDate> "1988-09-24" . }
+
+SELECT ?v0 WHERE {
+	?v0 <http://purl.org/dc/terms/Location> <http://db.uwaterloo.ca/~galuc/wsdbm/City0> .
+	?v0 <http://db.uwaterloo.ca/~galuc/wsdbm/gender> <http://db.uwaterloo.ca/~galuc/wsdbm/Gender1> .
+	?v0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://db.uwaterloo.ca/~galuc/wsdbm/Role2> .}
