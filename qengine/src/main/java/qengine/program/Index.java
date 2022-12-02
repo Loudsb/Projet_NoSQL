@@ -24,7 +24,7 @@ public class Index {
         ArrayList<Integer> tripletPermutation = new ArrayList<>();
 
         //System.out.println("\nEtat de l'index SPO: ");
-        addTriplet(indexSPO, triplet);
+        /*addTriplet(indexSPO, triplet);
 
         tripletPermutation = new ArrayList<>();
         tripletPermutation.add(triplet.get(0));
@@ -39,14 +39,14 @@ public class Index {
         tripletPermutation.add(triplet.get(2));
         //System.out.println("\nEtat de l'index PSO: ");
         addTriplet(indexPSO, tripletPermutation);
-
+*/
         tripletPermutation = new ArrayList<>();
         tripletPermutation.add(triplet.get(1));
         tripletPermutation.add(triplet.get(2));
         tripletPermutation.add(triplet.get(0));
         //System.out.println("\nEtat de l'index POS: ");
         addTriplet(indexPOS, tripletPermutation);
-
+/*
         tripletPermutation = new ArrayList<>();
         tripletPermutation.add(triplet.get(2));
         tripletPermutation.add(triplet.get(0));
@@ -60,16 +60,58 @@ public class Index {
         tripletPermutation.add(triplet.get(0));
         //System.out.println("\nEtat de l'index OPS: ");
         addTriplet(indexOPS, tripletPermutation);
+        */
 
     }
 
     //Méthode qui ajoute à l'index (passé en paramètre) le triplet (passé en paramètre)
     public void addTriplet(HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> index, ArrayList<Integer> triplet){
         
+        
         //Si les entiers n'existent pas déjà dans les index, ces variables ne sont pas ré-affectées donc nouvelle hashMapArrayList et nouvelle arrayList
         HashMap<Integer, ArrayList<Integer>> hashMapArrayList = new HashMap<>();
         ArrayList<Integer> arrayList = new ArrayList<>();
 
+        
+        //Si le sujet du triplet est déjà présent dans l'index
+        if(!(index.get(triplet.get(0)) == null)){
+            //on récupère l'hashmap correspondante
+            hashMapArrayList = index.get(triplet.get(0));
+
+            //Si sujet suivi de prédicat existe
+            if(!(hashMapArrayList.get(triplet.get(1)) == null)){
+                //on récupère l'arraylist d'objets
+                arrayList = hashMapArrayList.get(triplet.get(1));
+
+                //si l'objet n'est pas déjà là on l'ajoute
+                if(!arrayList.contains(triplet.get(2))){
+                    arrayList.add(triplet.get(2));
+                    hashMapArrayList.put(triplet.get(1), arrayList);
+                    index.put(triplet.get(0), hashMapArrayList);
+                }else{
+                    //on fait rien, triplet déjà dans l'index
+                }
+
+            } 
+            else{
+                //cas ou le sujet existe dejà mais pas le predicat donc pas l'objet
+                arrayList = new ArrayList<>();
+                arrayList.add(triplet.get(2));
+                hashMapArrayList.put(triplet.get(1), arrayList);
+                index.put(triplet.get(0), hashMapArrayList);
+            }
+
+        } else{
+            //le triplet n'est pas encore dans l'index donc on doit l'ajouter en entier directement
+            arrayList = new ArrayList<>();
+            arrayList.add(triplet.get(2));
+            hashMapArrayList.put(triplet.get(1), arrayList);
+            index.put(triplet.get(0), hashMapArrayList);
+
+        }
+
+
+        /*
         //Si le premier élément du triplet existe déjà, je veux récupérer la hashmap associé à cette clé/cet entier
         if(!(index.get(triplet.get(0)) == null)){
             hashMapArrayList = index.get(triplet.get(0));
@@ -95,18 +137,24 @@ public class Index {
         index.put(triplet.get(0), hashMapArrayList);
 
         //On affiche l'état de l'index qui vient d'être mis à jour avec le nouveau tuple
-        //System.out.println(index);
+        //System.out.println(index);*/
 
     }
 
     public ArrayList<Integer> findSubjectWithPOSindex(ArrayList<Integer> predicatAndObject){
+
+        //System.out.println("prédicat et objet : ");
+        //System.out.println(predicatAndObject.get(0));
+        //System.out.println(predicatAndObject.get(1));
 
         HashMap<Integer, ArrayList<Integer>> Pfound = indexPOS.get(predicatAndObject.get(0));
         ArrayList<Integer> listeOfSubject= Pfound.get(predicatAndObject.get(1));
         if(listeOfSubject == null){
             listeOfSubject = new ArrayList<>();
         }
-        return listeOfSubject;
+        //System.out.println(listeOfSubject);
+        return new ArrayList<>(listeOfSubject);
+
     }
 
 

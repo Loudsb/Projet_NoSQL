@@ -30,6 +30,10 @@ import org.apache.jena.rdf.model.ModelFactory;
 
 public class Parser {
 
+	static Model model = null;
+
+	static int nb = 0;
+
 	static final String baseURI = null;
 
 	// Variable qui va contenir le chemin vers le fichier contenant les requêtes
@@ -72,7 +76,7 @@ public class Parser {
 		 * entièrement dans une collection.
 		 */
 		// Chrono pour calculer le temps qu'on met à lire notre fichier de données
-		Stopwatch stopwatchData = Stopwatch.createStarted();
+		//Stopwatch stopwatchData = Stopwatch.createStarted();
 
 		// Les deux ArrayList qui vont contenir nos résultats et ceux de Jena, pour que
 		// l'on compare
@@ -83,15 +87,15 @@ public class Parser {
 
 		try (Stream<String> lineStream = Files.lines(Paths.get(queryFile))) {
 
-			long endTimeData = stopwatchData.elapsed(TimeUnit.MICROSECONDS);
-			totalTimeData += endTimeData;
+			//long endTimeData = stopwatchData.elapsed(TimeUnit.MICROSECONDS);
+			//totalTimeData += endTimeData;
 
 			SPARQLParser sparqlParser = new SPARQLParser();
 			Iterator<String> lineIterator = lineStream.iterator();
 			StringBuilder queryString = new StringBuilder();
 
 			// Chrono pour calculer le temps qu'on met à remplir les requêtes
-			Stopwatch stopwatchQueryFill = Stopwatch.createStarted();
+			//Stopwatch stopwatchQueryFill = Stopwatch.createStarted();
 
 			while (lineIterator.hasNext())
 			/*
@@ -111,15 +115,15 @@ public class Parser {
 					ParsedQuery query = sparqlParser.parseQuery(queryString.toString(), baseURI);
 
 					// Chrono pour calculer le temps qu'on met à évaluer les requêtes
-					Stopwatch startStopwatchQuery = Stopwatch.createStarted();
+					//Stopwatch startStopwatchQuery = Stopwatch.createStarted();
 
 					// Traitement de la requête
 					listResultprocessAQuery = processAQuery(query, dictionnaire, index);
 					ourResultsForCSV.addAll(listResultprocessAQuery.get(0));
 					ourResults.addAll(listResultprocessAQuery.get(1));
 
-					long endStopwatchQuery = startStopwatchQuery.elapsed(TimeUnit.MILLISECONDS);
-					stopwatchQuery += endStopwatchQuery;
+					//long endStopwatchQuery = startStopwatchQuery.elapsed(TimeUnit.MILLISECONDS);
+					//stopwatchQuery += endStopwatchQuery;
 
 					// Si l'option Jena est activée on vérifie l'exactitude des résultats renvoyés
 					// par notre système d'évaluation par rapport à ceux renvoyés par Jena
@@ -127,30 +131,36 @@ public class Parser {
 						jenaResults = processAQueryWithJena(queryString.toString());
 
 						if(jenaResults.size()==0 && ourResults.size()!=0){
-							System.out.println("NOUS AVONS TROUVE DES RESULTATS ET JENA AUCUN WTF");
-						}
-
-						else if(jenaResults.size()!=0 && ourResults.size()==0){
-							System.out.println(ourResults);
-							//System.out.println(ourResultsForCSV);
-							System.out.println(jenaResults);
-
-							System.out.println(queryString);
-
-							System.out.println("JENA A TROUVE ET NOUS 0 WTF");
+							System.out.println("NOUS AVONS TROUVE DES RESULTATS ET JENA AUCUN");
 							System.exit(1);
 						}
 
+						else if(jenaResults.size()!=0 && ourResults.size()==0){
+							System.out.println("JENA A TROUVE ET NOUS 0");
+							nb++;
+						}
+
 						else if(jenaResults.size()==0 && ourResults.size()==0){
-							System.out.println("ACCORDDDDDDDDDDDDDDD 0 RESULTAT");
+							System.out.println("0 RESULTAT pour Jena et nous");
 						}
 
 						else if (ourResults.containsAll(jenaResults) && jenaResults.containsAll(ourResults)) {
-							//System.out.println("Résultats de notre système validés !\n\n");
+							System.out.println("Résultats de notre système validés !\n\n");
 						} else {
 							System.out.println("Résultats de notre système : FAUX\n\n");
+							System.exit(1);
+
+							if (ourResults.size() != 0) {
+								for (String resultat : ourResults) {
+									System.out.println("Résultat requête (notre système) : "+ resultat);
+								}
+							} else {
+								System.out.println("Résultat requête (notre système) : AUCUN RESULTAT");
+							}
 						}
 					}
+
+			
 
 					queryString.setLength(0); // Reset le buffer de la requête en chaine vide
 
@@ -159,8 +169,8 @@ public class Parser {
 				}
 			}
 
-			long endTimeRequest = stopwatchQueryFill.elapsed(TimeUnit.MILLISECONDS);
-			totalTimeR += endTimeRequest;
+			//long endTimeRequest = stopwatchQueryFill.elapsed(TimeUnit.MILLISECONDS);
+			//totalTimeR += endTimeRequest;
 		}
 
 		return ourResultsForCSV;
@@ -221,7 +231,7 @@ public class Parser {
 					patterns.get(i).getPredicateVar().getValue().toString(),
 					patterns.get(i).getObjectVar().getValue().toString());
 			
-					System.out.println("prédicat et objet : "+listOfPredicatAndObject);
+					//System.out.println("prédicat et objet : "+listOfPredicatAndObject);
 
 			// Si notre dictionnaire connaît toutes les ressources de la requête, on lance
 			// la recherche dans les index, sinon on indique qu'un élément de la requête n'est pas dans les ressources
@@ -230,13 +240,13 @@ public class Parser {
 				// ArrayList qui récupère la recherche pour la branche i de notre étoile
 				ArrayList<Integer> listOfSubjects = index.findSubjectWithPOSindex(listOfPredicatAndObject);
 				//System.out.println("LISTEEEEE SUJETTTS :"+listOfSubjects.toString());
-
+				//System.out.println(listOfSubjects);
 				// Dans le cas où c'est la première branche
 				if (i == 0) {
 
 					//Si la liste des sujets trouvés est vide, c'est que la requête ne donnera aucun résultat
 					if (listOfSubjects.size() == 0) {
-						System.out.println("c'est null 1");
+						//System.out.println("c'est null 1");
 						//System.out.println("Branche numéro 0 : Aucun résultat trouvé dans l'index pour cette branche. On arrête les recherches");
 						queryResult = new ArrayList<>();
 						break;
@@ -253,7 +263,7 @@ public class Parser {
 					if (listOfSubjects.size() == 0) { // L'index n'a retourné aucun résultat pour la branche i
 						//System.out.println("Branche numéro "+i+" : Aucun résultat trouvé dans l'index pour cette branche. On arrête les recherches");
 						
-						System.out.println("c'est null 2");
+						//System.out.println("c'est null 2");
 
 						// On vide notre arrayList vide 
 						queryResult = new ArrayList<>();
@@ -269,7 +279,7 @@ public class Parser {
 						if (queryResult.size() != 0) {
 							//System.out.println("Intersection branches "+(i-1)+" et "+i+" donne : " +queryResult);
 						} else {
-							System.out.println("c'est null 3");
+							//System.out.println("c'est null 3");
 							//System.out.println("Intersection branches "+(i-1)+" et "+i+" ne donne aucun résultat");
 							break;
 						}
@@ -281,26 +291,27 @@ public class Parser {
 
 				//On vide la liste de résultats et on explique que l'on stoppe les recherches
 				queryResult = new ArrayList<>();
-				//System.out.println("Requête échouée, une des ressources de la requête n'est pas présente dans notre dictionnaire.");
+				System.out.println("Requête échouée, une des ressources de la requête n'est pas présente dans notre dictionnaire.");
 				break;
 			}
 		}
 
 		if (queryResult.size() != 0) {
 			for (Integer resultat : queryResult) {
-				//System.out.println("Résultat requête (notre système) : "
-				//+ dictionnaire.getDictionaryIntegerToString().get(resultat));
+				System.out.println("Résultat requête (notre système) : "
+				+ dictionnaire.getDictionaryIntegerToString().get(resultat));
 				OurSystemResultsForCSV.add(dictionnaire.getDictionaryIntegerToString().get(resultat));
 				OurSystemResults.add(dictionnaire.getDictionaryIntegerToString().get(resultat));
 			}
 			OurSystemResultsForCSV.add("");
 		} else {
-			//System.out.println("Résultat requête (notre système) : AUCUN RESULTAT");
+			System.out.println("Résultat requête (notre système) : AUCUN RESULTAT");
 			OurSystemResultsForCSV.add("empty");
 		}
 
 		twoLists.add(OurSystemResultsForCSV);
 		twoLists.add(OurSystemResults);
+		System.out.println(OurSystemResults);
 
 		return twoLists;
 	}
@@ -312,9 +323,11 @@ public class Parser {
 		ArrayList<String> JenaResults = new ArrayList<>();
 
 		// On crée un modèle RDF
-		Model model = ModelFactory.createDefaultModel();
-		// On lit et on ajoute les ressources d'un fichier .csv, dans notre modèle
-		model.read(dataFile);
+		if(model==null){
+			model = ModelFactory.createDefaultModel();
+			// On lit et on ajoute les ressources d'un fichier .csv, dans notre modèle
+			model.read(dataFile);
+		}
 
 		String queryString = queryToExecute.toString();
 		Query query = QueryFactory.create(queryString);
@@ -323,7 +336,7 @@ public class Parser {
 			for (; results.hasNext();) {
 				QuerySolution soln = results.nextSolution();
 				JenaResults.add(soln.getResource("?v0").toString());
-				//System.out.println("Résultat requête (Jena) : "+soln.getResource("?v0").toString());
+				System.out.println("Résultat requête (Jena) : "+soln.getResource("?v0").toString());
 			}
 		}
 		return JenaResults;

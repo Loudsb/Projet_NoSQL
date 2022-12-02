@@ -32,13 +32,13 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 	public void handleStatement(Statement st) {
 
 		// Chrono pour calculer le temps qu'on met à remplir le dictionnaire
-		Stopwatch stopwatchDico = Stopwatch.createStarted();
+		//Stopwatch stopwatchDico = Stopwatch.createStarted();
 
 		//On appelle la fonction d'ajout du triplet au dictionnaire
 		dictionnaire.addTriplet(st);
 
-		long endStopwatchDico = stopwatchDico.elapsed(TimeUnit.MILLISECONDS);
-		totalTimeDico += endStopwatchDico;
+		//long endStopwatchDico = stopwatchDico.elapsed(TimeUnit.MILLISECONDS);
+		//totalTimeDico += endStopwatchDico;
 
 		//ArrayList qui stocke les clés correspondant aux String du triplet dont on s'occupe
 		ArrayList<Integer> tripletInteger = new ArrayList<>();
@@ -47,15 +47,19 @@ public final class MainRDFHandler extends AbstractRDFHandler {
 		tripletInteger.add(dictionnaire.dictionaryStringToInteger.get(st.getSubject().toString()));
 		tripletInteger.add(dictionnaire.dictionaryStringToInteger.get(st.getPredicate().toString()));
 		tripletInteger.add(dictionnaire.dictionaryStringToInteger.get(st.getObject().toString()));
+		/*if(tripletInteger.get(0)==null || tripletInteger.get(1)==null || tripletInteger.get(2)==null){
+			System.out.println("ERREUR valeur manquante dictionnaire");
+			System.exit(1);
+		}*/
 
 		// Chrono pour calculer le temps qu'on met à créer les indexs
-		Stopwatch stopwatchIndex = Stopwatch.createStarted();
+		//Stopwatch stopwatchIndex = Stopwatch.createStarted();
 		
 		//On appelle la fonction d'ajout du triplet aux indexs (les triplets sont permutés dans la classe Index)
 		index.addTripletIndexes(tripletInteger);
 		
-		long endStopwatchIndex = stopwatchIndex.elapsed(TimeUnit.MILLISECONDS);
-		totalTimeIndex += endStopwatchIndex;
+		//long endStopwatchIndex = stopwatchIndex.elapsed(TimeUnit.MILLISECONDS);
+		//totalTimeIndex += endStopwatchIndex;
 
 		// On incrémente le compteur de Triplets
 		cptTriplet++;

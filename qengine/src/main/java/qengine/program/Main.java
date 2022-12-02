@@ -35,7 +35,7 @@ final class Main {
 	public static void main(String[] args) throws Exception {
 		// Temps total du début à la fin du programme
 		// Crée et démarre un nouveau chronomètre
-        Stopwatch stopwatch = Stopwatch.createStarted();
+        //Stopwatch stopwatch = Stopwatch.createStarted();
 
 		// Appel à la méthode de classe handleArguments pour gérer les arguments que
 		// l'utilisateur a saisis en ligne de commande
@@ -53,16 +53,23 @@ final class Main {
 		// On parse les ressources, on les ajoute au dictionnaire et aux index
 		parser.parseData(dictionary, index);
 
+		//System.out.println(dictionary.getDictionaryIntegerToString());
+		//System.out.println(dictionary.getDictionaryStringToInteger());
+		//System.out.println(index.getIndexPOS());
+
+		Thread.sleep(10000);
+
 		// On parse les requêtes puis on les exécute une à une et on récupère une ArrayList contenant tous les résultats
 		ArrayList<String> results = parser.parseQueries(dictionary, index);
 		
+		System.out.println("***********"+Parser.nb);
 		// Mettre les résultats dans un fichier CSV
-		CSV.putResultInCSV(results);
+		//CSV.putResultInCSV(results);
 		
 		// Variable pour calculer le temps total
-		long totalTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+		//long totalTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
-		CSV.timeEvaluationInCSV(totalTime);
+		//CSV.timeEvaluationInCSV(totalTime);
 	}
 
 }

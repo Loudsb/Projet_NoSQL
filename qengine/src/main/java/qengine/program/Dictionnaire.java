@@ -27,6 +27,8 @@ public class Dictionnaire{
             dictionaryStringToInteger.put(String.valueOf(st.getSubject()), cle);
 			cle++;
 		}
+        
+        
 
 		//On ajoute le prédicat au dictionnaire
         if(dictionaryStringToInteger.get(String.valueOf(st.getPredicate())) == null){ //Si la valeur String n'a pas déjà été ajouté au dico
@@ -34,6 +36,14 @@ public class Dictionnaire{
             dictionaryStringToInteger.put(String.valueOf(st.getPredicate()), cle);
 			cle++;
 		}
+
+        if(String.valueOf(st.getPredicate()).equals("http://schema.org/nationality") && String.valueOf(st.getObject()).equals("http://db.uwaterloo.ca/~galuc/wsdbm/Country67")){
+            System.out.println("**");
+            //System.out.println(dictionaryStringToInteger.get("http://schema.org/nationality"));
+            
+        }
+
+        
 
 		//On ajoute l'objet au dictionnaire
 		if(dictionaryStringToInteger.get(String.valueOf(st.getObject())) == null){ //Si la valeur String n'a pas déjà été ajouté au dico
@@ -45,6 +55,11 @@ public class Dictionnaire{
 		//System.out.println("\n Etat actuel de nos dictionnaires : ");
 		//System.out.println(dictionaryIntegerToString.toString());
         //System.out.println(dictionaryStringToInteger.toString());
+
+        //System.out.println(dictionaryStringToInteger.get("http://schema.org/nationality"));
+        //System.out.println(dictionaryIntegerToString.get(11962));
+
+
     }
 
     //Fonction qui récupère les entiers correspondant a l'URI 
