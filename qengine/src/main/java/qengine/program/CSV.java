@@ -52,7 +52,7 @@ public class CSV {
 		// temps de lecture des requêtes (ms) - OK - temps exact que met le programme à
 		// lire les lignes des requêtes dans le fichier qui les contients (dans
 		// parseQueries)
-		long timeRequest = Parser.getTotalTimeR();
+		long timeRequest = Parser.getTotalTimeReadQuery();
 		System.out.println("Temps de lecture des requêtes : " + timeRequest + " ms");
 
 		// temps création dico (ms) - OK
@@ -69,7 +69,7 @@ public class CSV {
 
 		// temps total d’évaluation du workload (ms) - Temps qu'on met à trouver les
 		// réponses (à évaluer les requêtes)
-		long workloadTime = Parser.getStopWatchQuery();
+		long workloadTime = Parser.getTotalTimeEvaluateQuery();
 		System.out.println("Temps d'évaluation du workload : " + workloadTime + " ms");
 
 		// temps total (du début à la fin du programme) (ms)

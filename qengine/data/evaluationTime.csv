@@ -1,2 +1,2 @@
 nom du fichier de données,nom du dossier des requêtes,nombre de triplets RDF,nombre de requêtes,temps de lecture des données (ms),temps de lecture des requêtes (ms),temps création dico (ms),nombre d’index,temps de création des index (ms),temps total d’évaluation du workload (ms),temps total (du début à la fin du programme) (ms)
-/home/garcialea/Bureau/Projet_NoSQL/qengine/data/100K.nt,/home/garcialea/Bureau/Projet_NoSQL/qengine/data/STAR_ALL_workload.queryset,105492,0,0,0,1385,6,1,0,2456
+./data/100K.nt,./data/STAR_ALL_workload.queryset,107338,1200,562923,1399,0,6,23,5,2087

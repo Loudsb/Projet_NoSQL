@@ -5,116 +5,94 @@ import org.eclipse.rdf4j.model.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Dictionnaire{
+public class Dictionnaire {
 
-    //Dictionnaire qui associe à chaque String sa valeur en entier
+    // Dictionnaire qui associe à chaque String sa valeur en entier
     public HashMap<String, Integer> dictionaryStringToInteger = new HashMap<String, Integer>();
 
-    //Dictionnaire qui associe à chaque entier sa valeur String
-	public HashMap<Integer, String> dictionaryIntegerToString = new HashMap<Integer, String>();
+    // Dictionnaire qui associe à chaque entier sa valeur String
+    public HashMap<Integer, String> dictionaryIntegerToString = new HashMap<Integer, String>();
 
     public int cle = 0;
 
     // Constructeur par défault
-    public Dictionnaire(){}
+    public Dictionnaire() {
+    }
 
-    //Fonction qui remplit les deux dictionnaires
-    public void addTriplet(Statement st){
-        
-        //On ajoute le sujet au dictionnaire
-        if(dictionaryStringToInteger.get(String.valueOf(st.getSubject())) == null){ //Si la valeur String n'a pas déjà été ajouté au dico
+    // Fonction qui remplit les deux dictionnaires
+    public void addTriplet(Statement st) {
+
+        // On ajoute le sujet au dictionnaire
+        if (dictionaryStringToInteger.get(String.valueOf(st.getSubject())) == null) { // Si la valeur String n'a pas
+                                                                                      // déjà été ajouté au dico
             dictionaryIntegerToString.put(cle, String.valueOf(st.getSubject()));
             dictionaryStringToInteger.put(String.valueOf(st.getSubject()), cle);
-			cle++;
-		}
-        
-        
-
-		//On ajoute le prédicat au dictionnaire
-        if(dictionaryStringToInteger.get(String.valueOf(st.getPredicate())) == null){ //Si la valeur String n'a pas déjà été ajouté au dico
-            dictionaryIntegerToString.put(cle, String.valueOf(st.getPredicate()));
-            dictionaryStringToInteger.put(String.valueOf(st.getPredicate()), cle);
-			cle++;
-		}
-
-        if(String.valueOf(st.getPredicate()).equals("http://schema.org/nationality") && String.valueOf(st.getObject()).equals("http://db.uwaterloo.ca/~galuc/wsdbm/Country67")){
-            System.out.println("**");
-            //System.out.println(dictionaryStringToInteger.get("http://schema.org/nationality"));
-            
+            cle++;
         }
 
-        
+        // On ajoute le prédicat au dictionnaire
+        if (dictionaryStringToInteger.get(String.valueOf(st.getPredicate())) == null) { // Si la valeur String n'a pas
+                                                                                        // déjà été ajouté au dico
+            dictionaryIntegerToString.put(cle, String.valueOf(st.getPredicate()));
+            dictionaryStringToInteger.put(String.valueOf(st.getPredicate()), cle);
+            cle++;
+        }
 
-		//On ajoute l'objet au dictionnaire
-		if(dictionaryStringToInteger.get(String.valueOf(st.getObject())) == null){ //Si la valeur String n'a pas déjà été ajouté au dico
+        // On ajoute l'objet au dictionnaire
+        if (dictionaryStringToInteger.get(String.valueOf(st.getObject())) == null) { // Si la valeur String n'a pas déjà
+                                                                                     // été ajouté au dico
             dictionaryIntegerToString.put(cle, String.valueOf(st.getObject()));
             dictionaryStringToInteger.put(String.valueOf(st.getObject()), cle);
-			cle++;
-		}
-
-		//System.out.println("\n Etat actuel de nos dictionnaires : ");
-		//System.out.println(dictionaryIntegerToString.toString());
-        //System.out.println(dictionaryStringToInteger.toString());
-
-        //System.out.println(dictionaryStringToInteger.get("http://schema.org/nationality"));
-        //System.out.println(dictionaryIntegerToString.get(11962));
-
+            cle++;
+        }
 
     }
 
-    //Fonction qui récupère les entiers correspondant a l'URI 
-    public ArrayList<Integer> queryStringToInt(String predicat, String object){
+    // Fonction qui récupère les entiers correspondant a l'URI
+    public ArrayList<Integer> queryStringToInt(String predicat, String object) {
 
         ArrayList<Integer> list = new ArrayList<Integer>();
 
-        //On cherche l'entier correspondant au prédicat et à l'objet
-        if(dictionaryStringToInteger.get(predicat) != null){
+        // On cherche l'entier correspondant au prédicat et à l'objet
+        if (dictionaryStringToInteger.get(predicat) != null) {
             int predicatInt = dictionaryStringToInteger.get(predicat);
             list.add(predicatInt);
-        }else{
+        } else {
             return new ArrayList<>();
         }
 
-        if(dictionaryStringToInteger.get(object) != null){
+        if (dictionaryStringToInteger.get(object) != null) {
             int objectInt = dictionaryStringToInteger.get(object);
             list.add(objectInt);
-        }else{
+        } else {
             return new ArrayList<>();
         }
-        
+
         return list;
     }
-
 
     public HashMap<String, Integer> getDictionaryStringToInteger() {
         return dictionaryStringToInteger;
     }
 
-
     public void setDictionaryStringToInteger(HashMap<String, Integer> dictionaryStringToInteger) {
         this.dictionaryStringToInteger = dictionaryStringToInteger;
     }
-
 
     public HashMap<Integer, String> getDictionaryIntegerToString() {
         return dictionaryIntegerToString;
     }
 
-
     public void setDictionaryIntegerToString(HashMap<Integer, String> dictionaryIntegerToString) {
         this.dictionaryIntegerToString = dictionaryIntegerToString;
     }
-
 
     public int getCle() {
         return cle;
     }
 
-
     public void setCle(int cle) {
         this.cle = cle;
     }
-
-
 
 }

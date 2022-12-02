@@ -1,7 +1,5 @@
 package qengine.program;
 
-import java.util.Scanner;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -70,8 +68,6 @@ public class CommandLineHandler {
 						 .desc("exporte les résultats des requêtes dans un fichier csv séparé")
                          .build();
 
-
-
 		//Ajoute les options à l'objet Options
 		options.addOption(queries);
 		options.addOption(data);
@@ -88,68 +84,55 @@ public class CommandLineHandler {
 	public static void usingArgs(CommandLine line){
 
 		if(line.hasOption("queries")) {
-			//queryFile = workingDir + "sample_query.queryset";
 			Parser.queryFile = line.getOptionValue("queries");
 		}
 		else {
-			/*System.out.println("Veuillez entrer le chemin absolu vers votre fichier de requêtes");
-			Scanner scanner = new Scanner(System.in);
-			String chemin = scanner.nextLine();
-    		Parser.queryFile = chemin;*/
-			Parser.queryFile = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/STAR_ALL_workload.queryset";
+			Parser.queryFile = "./data/STAR_ALL_workload.queryset";
 		}
 
 		if(line.hasOption("data")) {
-    		//dataFile = workingDir + "sample_data.nt";
 			Parser.dataFile = line.getOptionValue("data");
 		}
 		else {
-    		/*System.out.println("Veuillez entrer le chemin absolu vers votre fichier de ressources");
-			Scanner scanner = new Scanner(System.in);
-			String chemin = scanner.nextLine();
-    		Parser.dataFile = chemin;*/
-			Parser.dataFile = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/100K.nt";
+			Parser.dataFile = "./data/100K.nt";
 		}
 
 		if(line.hasOption("output")) {
     		CSV.directoryPathOutPut = line.getOptionValue("output");
 		}
 		else {
-    		CSV.directoryPathOutPut = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/";
+    		CSV.directoryPathOutPut = "./data/";
 		}
 
 		if(line.hasOption("Jena")) {
-			//On active la vérification avec Jena
+			//On active la vérification de nos résultats avec Jena
 			Parser.JenaVerification = true;
 		}
 		else {
-			//On n'active pas la vérification avec Jena
-    		Parser.JenaVerification = true;
+			//On désactive la vérification avec Jena
+    		Parser.JenaVerification = false;
 		}
 
 		if(line.hasOption("warm")) {
-    		int pourcentage = Integer.parseInt(line.getOptionValue("X"));
+    		//int pourcentage = Integer.parseInt(line.getOptionValue("X"));
+			//TODO next time
 		}
 		else {
-    		// print the date
+    		
 		}
 
 		if(line.hasOption("shuffle")) {
-    		// print the date and time
+			//TODO next time    		
 		}
 		else {
-    		// print the date
+    		
 		}
 
 		if(line.hasOption("export_query_results")) {
     		CSV.directoryPathQueryResults = line.getOptionValue("export_query_results");
 		}
 		else {
-    		/*System.out.println("Veuillez entrer le chemin absolu vers le dossier où vous voulez mettre le csv contenant les résultats");
-			Scanner scanner = new Scanner(System.in);
-			String chemin = scanner.nextLine();
-    		Parser.dataFile = chemin;*/
-			CSV.directoryPathQueryResults = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/";
+			CSV.directoryPathQueryResults = "./data/";
 		}
 
 	}

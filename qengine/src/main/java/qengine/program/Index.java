@@ -5,158 +5,126 @@ import java.util.HashMap;
 
 public class Index {
 
-    //Nos 6 indexs
-	private HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> indexSPO = new HashMap<>();
+    // Nos 6 indexs
+    private HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> indexSPO = new HashMap<>();
     private HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> indexSOP = new HashMap<>();
     private HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> indexPSO = new HashMap<>();
     private HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> indexPOS = new HashMap<>();
     private HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> indexOSP = new HashMap<>();
     private HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> indexOPS = new HashMap<>();
 
-    //Constructeur par défaut re-écrit
-    public Index(){}
+    // Constructeur par défaut re-écrit
+    public Index() {
+    }
 
-    //Méthode qui permet d'ajouter le triplet (permuté de la bonne manière) dans chaque index
-    public void addTripletIndexes(ArrayList<Integer> triplet){
-        
-        //Le triplet arrive sous forme : SPO
-        //On crée les permutations pour les autres indexs
+    // Méthode qui permet d'ajouter le triplet (permuté de la bonne manière) dans
+    // chaque index
+    public void addTripletIndexes(ArrayList<Integer> triplet) {
+
+        // Le triplet arrive sous forme : SPO
+        // On crée les permutations pour les autres indexs
         ArrayList<Integer> tripletPermutation = new ArrayList<>();
 
-        //System.out.println("\nEtat de l'index SPO: ");
-        /*addTriplet(indexSPO, triplet);
+        // System.out.println("\nEtat de l'index SPO: ");
+        addTriplet(indexSPO, triplet);
 
         tripletPermutation = new ArrayList<>();
         tripletPermutation.add(triplet.get(0));
         tripletPermutation.add(triplet.get(2));
         tripletPermutation.add(triplet.get(1));
-        //System.out.println("\nEtat de l'index SOP: ");
+        // System.out.println("\nEtat de l'index SOP: ");
         addTriplet(indexSOP, tripletPermutation);
 
         tripletPermutation = new ArrayList<>();
         tripletPermutation.add(triplet.get(1));
         tripletPermutation.add(triplet.get(0));
         tripletPermutation.add(triplet.get(2));
-        //System.out.println("\nEtat de l'index PSO: ");
+        // System.out.println("\nEtat de l'index PSO: ");
         addTriplet(indexPSO, tripletPermutation);
-*/
+
         tripletPermutation = new ArrayList<>();
         tripletPermutation.add(triplet.get(1));
         tripletPermutation.add(triplet.get(2));
         tripletPermutation.add(triplet.get(0));
-        //System.out.println("\nEtat de l'index POS: ");
+        // System.out.println("\nEtat de l'index POS: ");
         addTriplet(indexPOS, tripletPermutation);
-/*
+
         tripletPermutation = new ArrayList<>();
         tripletPermutation.add(triplet.get(2));
         tripletPermutation.add(triplet.get(0));
         tripletPermutation.add(triplet.get(1));
-        //System.out.println("\nEtat de l'index OSP: ");
+        // System.out.println("\nEtat de l'index OSP: ");
         addTriplet(indexOSP, tripletPermutation);
 
         tripletPermutation = new ArrayList<>();
         tripletPermutation.add(triplet.get(2));
         tripletPermutation.add(triplet.get(1));
         tripletPermutation.add(triplet.get(0));
-        //System.out.println("\nEtat de l'index OPS: ");
+        // System.out.println("\nEtat de l'index OPS: ");
         addTriplet(indexOPS, tripletPermutation);
-        */
 
     }
 
-    //Méthode qui ajoute à l'index (passé en paramètre) le triplet (passé en paramètre)
-    public void addTriplet(HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> index, ArrayList<Integer> triplet){
-        
-        
-        //Si les entiers n'existent pas déjà dans les index, ces variables ne sont pas ré-affectées donc nouvelle hashMapArrayList et nouvelle arrayList
+    // Méthode qui ajoute à l'index (passé en paramètre) le triplet (passé en
+    // paramètre)
+    public void addTriplet(HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> index, ArrayList<Integer> triplet) {
+
+        // Si les entiers n'existent pas déjà dans les index, ces variables ne sont pas
+        // ré-affectées donc nouvelle hashMapArrayList et nouvelle arrayList
         HashMap<Integer, ArrayList<Integer>> hashMapArrayList = new HashMap<>();
         ArrayList<Integer> arrayList = new ArrayList<>();
 
-        
-        //Si le sujet du triplet est déjà présent dans l'index
-        if(!(index.get(triplet.get(0)) == null)){
-            //on récupère l'hashmap correspondante
+        // Si le sujet du triplet est déjà présent dans l'index
+        if (!(index.get(triplet.get(0)) == null)) {
+            // on récupère l'hashmap correspondante
             hashMapArrayList = index.get(triplet.get(0));
 
-            //Si sujet suivi de prédicat existe
-            if(!(hashMapArrayList.get(triplet.get(1)) == null)){
-                //on récupère l'arraylist d'objets
+            // Si sujet suivi de prédicat existe
+            if (!(hashMapArrayList.get(triplet.get(1)) == null)) {
+                // on récupère l'arraylist d'objets
                 arrayList = hashMapArrayList.get(triplet.get(1));
 
-                //si l'objet n'est pas déjà là on l'ajoute
-                if(!arrayList.contains(triplet.get(2))){
+                // si l'objet n'est pas déjà là on l'ajoute
+                if (!arrayList.contains(triplet.get(2))) {
                     arrayList.add(triplet.get(2));
                     hashMapArrayList.put(triplet.get(1), arrayList);
                     index.put(triplet.get(0), hashMapArrayList);
-                }else{
-                    //on fait rien, triplet déjà dans l'index
+                } else {
+                    // on fait rien, triplet déjà dans l'index
                 }
 
-            } 
-            else{
-                //cas ou le sujet existe dejà mais pas le predicat donc pas l'objet
+            } else {
+                // cas ou le sujet existe dejà mais pas le predicat donc pas l'objet
                 arrayList = new ArrayList<>();
                 arrayList.add(triplet.get(2));
                 hashMapArrayList.put(triplet.get(1), arrayList);
                 index.put(triplet.get(0), hashMapArrayList);
             }
 
-        } else{
-            //le triplet n'est pas encore dans l'index donc on doit l'ajouter en entier directement
+        } else {
+            // le triplet n'est pas encore dans l'index donc on doit l'ajouter en entier
+            // directement
             arrayList = new ArrayList<>();
             arrayList.add(triplet.get(2));
             hashMapArrayList.put(triplet.get(1), arrayList);
             index.put(triplet.get(0), hashMapArrayList);
 
         }
-
-
-        /*
-        //Si le premier élément du triplet existe déjà, je veux récupérer la hashmap associé à cette clé/cet entier
-        if(!(index.get(triplet.get(0)) == null)){
-            hashMapArrayList = index.get(triplet.get(0));
-        }
-
-        //Si le deuxième élément du triplet existe déjà dans l'hashmap récupérée, je veux récupérer l'arraylist associée à cette clé/cet entier
-        if(!(hashMapArrayList.get(triplet.get(1)) == null)){
-            arrayList = hashMapArrayList.get(triplet.get(1));
-        }
-
-        //J'ajoute dans l'ArrayList le dernier élément du triple, s'il n'existe pas déjà
-        //Soit je n'ai rien récupéré et on ajoute le troisième élément du triplet dans une liste vide
-        //Soit j'ajoute le troisième élément du triplet à la suite dans l'arraylist récupérée
-        if(!arrayList.contains(triplet.get(2))){
-            arrayList.add(triplet.get(2));
-        }
-            
-        //J'ajoute à l'hashMapArrayList le deuxième élément du triplet ainsi que l'arrayList
-        hashMapArrayList.put(triplet.get(1), arrayList);
-
-        //On ajoute à notre index la permutation du triplet
-        //Soit il n'existe pas et on l'ajoute soit on le met à jour
-        index.put(triplet.get(0), hashMapArrayList);
-
-        //On affiche l'état de l'index qui vient d'être mis à jour avec le nouveau tuple
-        //System.out.println(index);*/
-
     }
 
-    public ArrayList<Integer> findSubjectWithPOSindex(ArrayList<Integer> predicatAndObject){
-
-        //System.out.println("prédicat et objet : ");
-        //System.out.println(predicatAndObject.get(0));
-        //System.out.println(predicatAndObject.get(1));
+    public ArrayList<Integer> findSubjectWithPOSindex(ArrayList<Integer> predicatAndObject) {
 
         HashMap<Integer, ArrayList<Integer>> Pfound = indexPOS.get(predicatAndObject.get(0));
-        ArrayList<Integer> listeOfSubject= Pfound.get(predicatAndObject.get(1));
-        if(listeOfSubject == null){
+        ArrayList<Integer> listeOfSubject = Pfound.get(predicatAndObject.get(1));
+        if (listeOfSubject == null) {
             listeOfSubject = new ArrayList<>();
         }
-        //System.out.println(listeOfSubject);
+
+        // on retourne une copie pour éviter de donner une référence de l'index et donc
+        // la possibilité de le modifier directement (et de passer 28 heures à débugger)
         return new ArrayList<>(listeOfSubject);
 
     }
-
 
     public HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> getIndexSPO() {
         return indexSPO;
@@ -206,6 +174,4 @@ public class Index {
         this.indexOPS = indexOPS;
     }
 
-    
-    
 }
