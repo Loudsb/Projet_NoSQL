@@ -96,7 +96,7 @@ public class CommandLineHandler {
 			Scanner scanner = new Scanner(System.in);
 			String chemin = scanner.nextLine();
     		Parser.queryFile = chemin;*/
-			Parser.queryFile = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/requete.queryset";
+			Parser.queryFile = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/STAR_ALL_workload.queryset";
 		}
 
 		if(line.hasOption("data")) {

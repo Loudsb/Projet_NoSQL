@@ -100,6 +100,10 @@ public class Parser {
 			 * On considère alors que c'est la fin d'une requête
 			 */
 			{
+
+				ourResults = new ArrayList<>();
+				jenaResults = new ArrayList<>();
+
 				String line = lineIterator.next();
 				queryString.append(line);
 
@@ -112,7 +116,7 @@ public class Parser {
 					// Traitement de la requête
 					listResultprocessAQuery = processAQuery(query, dictionnaire, index);
 					ourResultsForCSV.addAll(listResultprocessAQuery.get(0));
-					ourResults = listResultprocessAQuery.get(1);
+					ourResults.addAll(listResultprocessAQuery.get(1));
 
 					long endStopwatchQuery = startStopwatchQuery.elapsed(TimeUnit.MILLISECONDS);
 					stopwatchQuery += endStopwatchQuery;
@@ -127,7 +131,14 @@ public class Parser {
 						}
 
 						else if(jenaResults.size()!=0 && ourResults.size()==0){
+							System.out.println(ourResults);
+							//System.out.println(ourResultsForCSV);
+							System.out.println(jenaResults);
+
+							System.out.println(queryString);
+
 							System.out.println("JENA A TROUVE ET NOUS 0 WTF");
+							System.exit(1);
 						}
 
 						else if(jenaResults.size()==0 && ourResults.size()==0){
@@ -135,7 +146,7 @@ public class Parser {
 						}
 
 						else if (ourResults.containsAll(jenaResults) && jenaResults.containsAll(ourResults)) {
-							System.out.println("Résultats de notre système validés !\n\n");
+							//System.out.println("Résultats de notre système validés !\n\n");
 						} else {
 							System.out.println("Résultats de notre système : FAUX\n\n");
 						}
@@ -194,7 +205,7 @@ public class Parser {
 		ArrayList<String> OurSystemResults = new ArrayList<>();
 		ArrayList<String> OurSystemResultsForCSV = new ArrayList<>();
 
-		System.out.println("Requête : "+query);
+		//System.out.println("Requête : "+query);
 
 		List<StatementPattern> patterns = StatementPatternCollector.process(query.getTupleExpr());
 
@@ -209,6 +220,8 @@ public class Parser {
 			ArrayList<Integer> listOfPredicatAndObject = dictionnaire.queryStringToInt(
 					patterns.get(i).getPredicateVar().getValue().toString(),
 					patterns.get(i).getObjectVar().getValue().toString());
+			
+					System.out.println("prédicat et objet : "+listOfPredicatAndObject);
 
 			// Si notre dictionnaire connaît toutes les ressources de la requête, on lance
 			// la recherche dans les index, sinon on indique qu'un élément de la requête n'est pas dans les ressources
@@ -216,29 +229,32 @@ public class Parser {
 
 				// ArrayList qui récupère la recherche pour la branche i de notre étoile
 				ArrayList<Integer> listOfSubjects = index.findSubjectWithPOSindex(listOfPredicatAndObject);
-				System.out.println("LISTEEEEE SUJETTTS :"+listOfSubjects.toString());
+				//System.out.println("LISTEEEEE SUJETTTS :"+listOfSubjects.toString());
 
 				// Dans le cas où c'est la première branche
 				if (i == 0) {
 
 					//Si la liste des sujets trouvés est vide, c'est que la requête ne donnera aucun résultat
 					if (listOfSubjects.size() == 0) {
-						System.out.println("Branche numéro 0 : Aucun résultat trouvé dans l'index pour cette branche. On arrête les recherches");
+						System.out.println("c'est null 1");
+						//System.out.println("Branche numéro 0 : Aucun résultat trouvé dans l'index pour cette branche. On arrête les recherches");
 						queryResult = new ArrayList<>();
 						break;
 					} else {
 						// On remplit notre liste de résultat, qui était jusque là vide et on affiche le
 						// résultat pour la branche 0
 						queryResult = listOfSubjects;
-						System.out.println("Résultat branche numéro 0 : "+ queryResult);
+						//System.out.println("Résultat branche numéro 0 : "+ queryResult);
 					}
 
 				} else { // C'est une branche autre que la branche 0, je dois faire l'intersection entre
 							// la branche précédente et la branche courante de mon étoile
 
-					if (listOfSubjects == null) { // L'index n'a retourné aucun résultat pour la branche i
-						System.out.println("Branche numéro "+i+" : Aucun résultat trouvé dans l'index pour cette branche. On arrête les recherches");
+					if (listOfSubjects.size() == 0) { // L'index n'a retourné aucun résultat pour la branche i
+						//System.out.println("Branche numéro "+i+" : Aucun résultat trouvé dans l'index pour cette branche. On arrête les recherches");
 						
+						System.out.println("c'est null 2");
+
 						// On vide notre arrayList vide 
 						queryResult = new ArrayList<>();
 						break;
@@ -251,9 +267,10 @@ public class Parser {
 
 						//Si l'intersection n'est pas vide, on continue
 						if (queryResult.size() != 0) {
-							System.out.println("Intersection branches "+(i-1)+" et "+i+" donne : " +queryResult);
+							//System.out.println("Intersection branches "+(i-1)+" et "+i+" donne : " +queryResult);
 						} else {
-							System.out.println("Intersection branches "+(i-1)+" et "+i+" ne donne aucun résultat");
+							System.out.println("c'est null 3");
+							//System.out.println("Intersection branches "+(i-1)+" et "+i+" ne donne aucun résultat");
 							break;
 						}
 					}
@@ -264,21 +281,21 @@ public class Parser {
 
 				//On vide la liste de résultats et on explique que l'on stoppe les recherches
 				queryResult = new ArrayList<>();
-				System.out.println("Requête échouée, une des ressources de la requête n'est pas présente dans notre dictionnaire.");
+				//System.out.println("Requête échouée, une des ressources de la requête n'est pas présente dans notre dictionnaire.");
 				break;
 			}
 		}
 
 		if (queryResult.size() != 0) {
 			for (Integer resultat : queryResult) {
-				System.out.println("Résultat requête (notre système) : "
-				+ dictionnaire.getDictionaryIntegerToString().get(resultat));
+				//System.out.println("Résultat requête (notre système) : "
+				//+ dictionnaire.getDictionaryIntegerToString().get(resultat));
 				OurSystemResultsForCSV.add(dictionnaire.getDictionaryIntegerToString().get(resultat));
 				OurSystemResults.add(dictionnaire.getDictionaryIntegerToString().get(resultat));
 			}
 			OurSystemResultsForCSV.add("");
 		} else {
-			System.out.println("Résultat requête (notre système) : AUCUN RESULTAT");
+			//System.out.println("Résultat requête (notre système) : AUCUN RESULTAT");
 			OurSystemResultsForCSV.add("empty");
 		}
 
@@ -306,7 +323,7 @@ public class Parser {
 			for (; results.hasNext();) {
 				QuerySolution soln = results.nextSolution();
 				JenaResults.add(soln.getResource("?v0").toString());
-				System.out.println("Résultat requête (Jena) : "+soln.getResource("?v0").toString());
+				//System.out.println("Résultat requête (Jena) : "+soln.getResource("?v0").toString());
 			}
 		}
 		return JenaResults;

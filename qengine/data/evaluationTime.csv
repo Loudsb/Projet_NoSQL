@@ -1,2 +1,2 @@
 nom du fichier de données,nom du dossier des requêtes,nombre de triplets RDF,nombre de requêtes,temps de lecture des données (ms),temps de lecture des requêtes (ms),temps création dico (ms),nombre d’index,temps de création des index (ms),temps total d’évaluation du workload (ms),temps total (du début à la fin du programme) (ms)
-/home/garcialea/Bureau/Projet_NoSQL/qengine/data/100K.nt,/home/garcialea/Bureau/Projet_NoSQL/qengine/data/requete.queryset,107338,1,1772,727,0,6,15,1,1350
+/home/garcialea/Bureau/Projet_NoSQL/qengine/data/100K.nt,/home/garcialea/Bureau/Projet_NoSQL/qengine/data/requetes.queryset,107338,612,2239,200220,1,6,39,2,201438
