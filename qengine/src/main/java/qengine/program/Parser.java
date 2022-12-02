@@ -225,7 +225,7 @@ public class Parser {
 			rdfParser.parse(dataReader, baseURI);
 
 			// On arrête le chrono
-			totalTimeData = stopwatchData.elapsed(TimeUnit.MICROSECONDS);
+			totalTimeData = stopwatchData.elapsed(TimeUnit.MILLISECONDS);
 
 		}
 	}
