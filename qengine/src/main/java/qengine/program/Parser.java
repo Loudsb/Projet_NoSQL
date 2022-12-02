@@ -122,7 +122,19 @@ public class Parser {
 					if (JenaVerification) {
 						jenaResults = processAQueryWithJena(queryString.toString());
 
-						if (ourResults.containsAll(jenaResults) && jenaResults.containsAll(ourResults)) {
+						if(jenaResults.size()==0 && ourResults.size()!=0){
+							System.out.println("NOUS AVONS TROUVE DES RESULTATS ET JENA AUCUN WTF");
+						}
+
+						else if(jenaResults.size()!=0 && ourResults.size()==0){
+							System.out.println("JENA A TROUVE ET NOUS 0 WTF");
+						}
+
+						else if(jenaResults.size()==0 && ourResults.size()==0){
+							System.out.println("ACCORDDDDDDDDDDDDDDD 0 RESULTAT");
+						}
+
+						else if (ourResults.containsAll(jenaResults) && jenaResults.containsAll(ourResults)) {
 							System.out.println("Résultats de notre système validés !\n\n");
 						} else {
 							System.out.println("Résultats de notre système : FAUX\n\n");
@@ -177,6 +189,7 @@ public class Parser {
 	 */
 	public static ArrayList<ArrayList<String>> processAQuery(ParsedQuery query, Dictionnaire dictionnaire, Index index) {
 
+		//ArrayList pour les résultats
 		ArrayList<ArrayList<String>> twoLists = new ArrayList<>();
 		ArrayList<String> OurSystemResults = new ArrayList<>();
 		ArrayList<String> OurSystemResultsForCSV = new ArrayList<>();
@@ -185,8 +198,7 @@ public class Parser {
 
 		List<StatementPattern> patterns = StatementPatternCollector.process(query.getTupleExpr());
 
-		// ArrayList qui contient le résultat de la requête, elle est mise à jour à
-		// chaque étape
+		//Liste qui va contenir le résultat final
 		ArrayList<Integer> queryResult = new ArrayList<>();
 
 		// Pour pouvoir traiter les n branches de notre étoile on itère sur les n
@@ -197,66 +209,62 @@ public class Parser {
 			ArrayList<Integer> listOfPredicatAndObject = dictionnaire.queryStringToInt(
 					patterns.get(i).getPredicateVar().getValue().toString(),
 					patterns.get(i).getObjectVar().getValue().toString());
-			// System.out.println("Dictionnaire, prédicat :
-			// "+listOfPredicatAndObject.get(0));
-			// System.out.println("Dictionnaire, objet : "+listOfPredicatAndObject.get(1));
 
 			// Si notre dictionnaire connaît toutes les ressources de la requête, on lance
-			// la recherche dans les index
+			// la recherche dans les index, sinon on indique qu'un élément de la requête n'est pas dans les ressources
 			if (listOfPredicatAndObject.size() != 0) {
 
 				// ArrayList qui récupère la recherche pour la branche i de notre étoile
 				ArrayList<Integer> listOfSubjects = index.findSubjectWithPOSindex(listOfPredicatAndObject);
+				System.out.println("LISTEEEEE SUJETTTS :"+listOfSubjects.toString());
 
 				// Dans le cas où c'est la première branche
 				if (i == 0) {
 
-					if (listOfSubjects == null) {
+					//Si la liste des sujets trouvés est vide, c'est que la requête ne donnera aucun résultat
+					if (listOfSubjects.size() == 0) {
 						System.out.println("Branche numéro 0 : Aucun résultat trouvé dans l'index pour cette branche. On arrête les recherches");
-						// queryResult est vide à ce stade
+						queryResult = new ArrayList<>();
 						break;
 					} else {
 						// On remplit notre liste de résultat, qui était jusque là vide et on affiche le
 						// résultat pour la branche 0
 						queryResult = listOfSubjects;
-						// TODO tester si pas vide + affichages
-						System.out.println("Résultat branche numéro "+ i +" : "+ queryResult);
+						System.out.println("Résultat branche numéro 0 : "+ queryResult);
 					}
 
 				} else { // C'est une branche autre que la branche 0, je dois faire l'intersection entre
 							// la branche précédente et la branche courante de mon étoile
+
 					if (listOfSubjects == null) { // L'index n'a retourné aucun résultat pour la branche i
-						// System.out.println("Branche numéro "+i+" : Aucun résultat trouvé dans l'index
-						// pour cette branche. On arrête les recherches");
-						// On vide notre arrayList vide pour ensuite afficher dans le résultat de la
-						// requête, que cela n'a rien donné
+						System.out.println("Branche numéro "+i+" : Aucun résultat trouvé dans l'index pour cette branche. On arrête les recherches");
+						
+						// On vide notre arrayList vide 
 						queryResult = new ArrayList<>();
 						break;
 
 					} else {
 						// L'index a retourné au moins un résultat pour la branche i
-						// On fait l'intersection en retenant dans queryResult, uniquement les éléments
-						// qui sont aussi dans listOfSubjects
+
+						// On fait l'intersection entre queryResult et listOfSubjects
 						queryResult.retainAll(listOfSubjects);
 
+						//Si l'intersection n'est pas vide, on continue
 						if (queryResult.size() != 0) {
-							// System.out.println("Intersection branches "+(i-1)+" et "+i+" donne :
-							// "+queryResult);
-						} else {// Si la liste est vide suite à retainAll, alors cette requête ne donnera aucun
-								// résultat (queryResult est vidée à ce stade)
-								// System.out.println("Intersection branches "+(i-1)+" et "+i+" ne donne aucun
-								// résultat");
+							System.out.println("Intersection branches "+(i-1)+" et "+i+" donne : " +queryResult);
+						} else {
+							System.out.println("Intersection branches "+(i-1)+" et "+i+" ne donne aucun résultat");
 							break;
 						}
 					}
 				}
 
 			} else {
-				// Dans le cas où une ressource de la requête n'est pas enregistrée dans notre
-				// dictionnaire, on peut être sûrs que cela ne donnera aucun résultat dans les
-				// indexs
-				// System.out.println("Requête échouée, une des ressources de la requête n'est
-				// pas présente dans notre dictionnaire.");
+				// Dans le cas où une ressource de la requête n'est pas enregistrée dans notre dictionnaire
+
+				//On vide la liste de résultats et on explique que l'on stoppe les recherches
+				queryResult = new ArrayList<>();
+				System.out.println("Requête échouée, une des ressources de la requête n'est pas présente dans notre dictionnaire.");
 				break;
 			}
 		}
@@ -264,7 +272,7 @@ public class Parser {
 		if (queryResult.size() != 0) {
 			for (Integer resultat : queryResult) {
 				System.out.println("Résultat requête (notre système) : "
-						+ dictionnaire.getDictionaryIntegerToString().get(resultat));
+				+ dictionnaire.getDictionaryIntegerToString().get(resultat));
 				OurSystemResultsForCSV.add(dictionnaire.getDictionaryIntegerToString().get(resultat));
 				OurSystemResults.add(dictionnaire.getDictionaryIntegerToString().get(resultat));
 			}

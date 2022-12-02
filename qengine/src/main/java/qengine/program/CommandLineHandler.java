@@ -96,7 +96,7 @@ public class CommandLineHandler {
 			Scanner scanner = new Scanner(System.in);
 			String chemin = scanner.nextLine();
     		Parser.queryFile = chemin;*/
-			Parser.queryFile = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/sample_query.queryset";
+			Parser.queryFile = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/requete.queryset";
 		}
 
 		if(line.hasOption("data")) {
@@ -108,7 +108,7 @@ public class CommandLineHandler {
 			Scanner scanner = new Scanner(System.in);
 			String chemin = scanner.nextLine();
     		Parser.dataFile = chemin;*/
-			Parser.dataFile = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/sample_data.nt";
+			Parser.dataFile = "/home/garcialea/Bureau/Projet_NoSQL/qengine/data/100K.nt";
 		}
 
 		if(line.hasOption("output")) {
@@ -124,7 +124,7 @@ public class CommandLineHandler {
 		}
 		else {
 			//On n'active pas la vérification avec Jena
-    		Parser.JenaVerification = false;
+    		Parser.JenaVerification = true;
 		}
 
 		if(line.hasOption("warm")) {
