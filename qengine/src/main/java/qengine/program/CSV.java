@@ -103,7 +103,8 @@ public class CSV {
 
 		fileCSV.close();
 
-		System.out.println("Fichier csv créé");
+		System.out.println("Fichier csv créé et placé là où indiqué, ou au même niveau que le .jar dans l'arborescence de fichiers");
+
 	}
 
 	// Fonction qui met les résulats des requêtes dans un fichier CSV
@@ -160,7 +161,7 @@ public class CSV {
 
 		fileCSV.close();
 
-		System.out.println("\nFichier csv qui contient les résultats créé");
+		System.out.println("\nFichier csv qui contient les résultats créé et placé là où indiqué, ou au même niveau que le .jar dans l'arborescence de fichiers");
 	}
 
 }

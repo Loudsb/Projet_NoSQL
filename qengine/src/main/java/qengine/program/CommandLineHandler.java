@@ -101,7 +101,7 @@ public class CommandLineHandler {
     		CSV.directoryPathOutPut = line.getOptionValue("output");
 		}
 		else {
-    		CSV.directoryPathOutPut = "./data/";
+    		CSV.directoryPathOutPut = "./";
 		}
 
 		if(line.hasOption("Jena")) {
@@ -132,7 +132,7 @@ public class CommandLineHandler {
     		CSV.directoryPathQueryResults = line.getOptionValue("export_query_results");
 		}
 		else {
-			CSV.directoryPathQueryResults = "./data/";
+			CSV.directoryPathQueryResults = "./";
 		}
 
 	}
