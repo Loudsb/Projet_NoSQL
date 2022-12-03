@@ -260,7 +260,7 @@ public class Parser {
 					patterns.get(i).getPredicateVar().getValue().toString(),
 					patterns.get(i).getObjectVar().getValue().toString());
 
-			if (listOfPredicatAndObject.size() != 0) { // Si notre dictionnaire connaît toutes les ressources de la
+			if (listOfPredicatAndObject.size() == 2) { // Si notre dictionnaire connaît toutes les ressources de la
 														// requête
 
 				// ArrayList qui récupère la recherche pour la branche i de notre étoile

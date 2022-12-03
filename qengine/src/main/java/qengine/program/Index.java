@@ -69,47 +69,21 @@ public class Index {
     // paramètre)
     public void addTriplet(HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> index, ArrayList<Integer> triplet) {
 
-        // Si les entiers n'existent pas déjà dans les index, ces variables ne sont pas
-        // ré-affectées donc nouvelle hashMapArrayList et nouvelle arrayList
         HashMap<Integer, ArrayList<Integer>> hashMapArrayList = new HashMap<>();
         ArrayList<Integer> arrayList = new ArrayList<>();
 
-        // Si le sujet du triplet est déjà présent dans l'index
-        if (!(index.get(triplet.get(0)) == null)) {
-            // on récupère l'hashmap correspondante
+        if(!(index.get(triplet.get(0)) == null)){
             hashMapArrayList = index.get(triplet.get(0));
-
-            // Si sujet suivi de prédicat existe
-            if (!(hashMapArrayList.get(triplet.get(1)) == null)) {
-                // on récupère l'arraylist d'objets
-                arrayList = hashMapArrayList.get(triplet.get(1));
-
-                // si l'objet n'est pas déjà là on l'ajoute
-                if (!arrayList.contains(triplet.get(2))) {
-                    arrayList.add(triplet.get(2));
-                    hashMapArrayList.put(triplet.get(1), arrayList);
-                    index.put(triplet.get(0), hashMapArrayList);
-                } else {
-                    // on fait rien, triplet déjà dans l'index
-                }
-
-            } else {
-                // cas ou le sujet existe dejà mais pas le predicat donc pas l'objet
-                arrayList = new ArrayList<>();
-                arrayList.add(triplet.get(2));
-                hashMapArrayList.put(triplet.get(1), arrayList);
-                index.put(triplet.get(0), hashMapArrayList);
-            }
-
-        } else {
-            // le triplet n'est pas encore dans l'index donc on doit l'ajouter en entier
-            // directement
-            arrayList = new ArrayList<>();
-            arrayList.add(triplet.get(2));
-            hashMapArrayList.put(triplet.get(1), arrayList);
-            index.put(triplet.get(0), hashMapArrayList);
-
         }
+        if(!(hashMapArrayList.get(triplet.get(1)) == null)){
+            arrayList = hashMapArrayList.get(triplet.get(1));
+        }
+        if(!arrayList.contains(triplet.get(2))){
+            arrayList.add(triplet.get(2));
+        }
+        hashMapArrayList.put(triplet.get(1), arrayList);
+        index.put(triplet.get(0), hashMapArrayList);
+        
     }
 
     public ArrayList<Integer> findSubjectWithPOSindex(ArrayList<Integer> predicatAndObject) {

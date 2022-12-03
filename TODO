@@ -1,9 +1,0 @@
-Données passées en statique faut les passer en dynamique
-
-Question à poser ?
-
-Est-ce que le code qu'on a écrit est correct ?
-
-Comment utiliser le B-tree ? Il sert à quel moment ? 
-
-Comment trier les triplets quand on les met dans nos index ? Est-ce qu'il faut recréer un index à chaque fois que l'on veut ajouter de manière triée ?
