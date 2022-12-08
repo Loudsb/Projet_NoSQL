@@ -1,10 +1,12 @@
 package qengine.program;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,7 +38,7 @@ public class Parser {
 
 	static final String baseURI = null;
 
-	// Variable qui va contenir le chemin vers le fichier contenant les requêtes
+	// Variable qui va contenir le chemin vers le dossier contenant les requêtes
 	// sparql
 	static String queryFile;
 
@@ -74,99 +76,107 @@ public class Parser {
 		// ArrayList qui va contenir les résultats de Jena
 		ArrayList<String> jenaResults = new ArrayList<>();
 
-		try (Stream<String> lineStream = Files.lines(Paths.get(queryFile))) {
+		//On va accéder aux fichiers du dossier de requêtes
+		File files = new File(queryFile);
+	
+		// Boucle qui permet de lire les fichiers dans un dossier
+		for (File file : files.listFiles()) {
 
-			SPARQLParser sparqlParser = new SPARQLParser();
-			Iterator<String> lineIterator = lineStream.iterator();
-			StringBuilder queryString = new StringBuilder();
+			try (Stream<String> lineStream = Files.lines(file.toPath())) {
 
-			// Chrono pour calculer le temps qu'on met à lire les requêtes
-			Stopwatch stopwatchReadQuery = Stopwatch.createStarted();
+				SPARQLParser sparqlParser = new SPARQLParser();
+				Iterator<String> lineIterator = lineStream.iterator();
+				StringBuilder queryString = new StringBuilder();
 
-			while (lineIterator.hasNext())
-			/*
-			 * On stocke plusieurs lignes jusqu'à ce que l'une d'entre elles se termine par
-			 * un '}'
-			 * On considère alors que c'est la fin d'une requête
-			 */
-			{
-				ourResults = new ArrayList<>();
-				jenaResults = new ArrayList<>();
+				// Chrono pour calculer le temps qu'on met à lire les requêtes
+				Stopwatch stopwatchReadQuery = Stopwatch.createStarted();
 
-				String line = lineIterator.next();
-				queryString.append(line);
+				while (lineIterator.hasNext())
+				/*
+				 * On stocke plusieurs lignes jusqu'à ce que l'une d'entre elles se termine par
+				 * un '}'
+				 * On considère alors que c'est la fin d'une requête
+				 */
+				{
+					ourResults = new ArrayList<>();
+					jenaResults = new ArrayList<>();
 
-				if (line.trim().endsWith("}")) {
+					String line = lineIterator.next();
+					queryString.append(line);
 
-					System.out.println("\nRequête numéro "+(nbRequest+1));
+					if (line.trim().endsWith("}")) {
 
-					ParsedQuery query = sparqlParser.parseQuery(queryString.toString(), baseURI);
+						System.out.println("\nRequête numéro " + (nbRequest + 1));
 
-					// Chrono pour calculer le temps qu'on met à évaluer les requêtes
-					Stopwatch stopwatchEvaluateQuery = Stopwatch.createStarted();
+						ParsedQuery query = sparqlParser.parseQuery(queryString.toString(), baseURI);
 
-					// Traitement de la requête
-					listResultprocessAQuery = processAQuery(query, dictionnaire, index);
-					ourResultsForCSV.addAll(listResultprocessAQuery.get(0));
-					ourResults.addAll(listResultprocessAQuery.get(1));
+						// Chrono pour calculer le temps qu'on met à évaluer les requêtes
+						Stopwatch stopwatchEvaluateQuery = Stopwatch.createStarted();
 
-					if(ourResults.size() != 0){
-						System.out.println("Résultats de notre système : ");
-						System.out.println(ourResults);
-					}else{
-						System.out.println("Résultats de notre système : aucun");
-					}
+						// Traitement de la requête
+						listResultprocessAQuery = processAQuery(query, dictionnaire, index);
+						ourResultsForCSV.addAll(listResultprocessAQuery.get(0));
+						ourResults.addAll(listResultprocessAQuery.get(1));
 
-					long endStopwatchEvaluateQuery = stopwatchEvaluateQuery.elapsed(TimeUnit.MILLISECONDS);
-					totalTimeEvaluateQuery += endStopwatchEvaluateQuery;
-
-					// Si l'option Jena est activée on vérifie l'exactitude des résultats renvoyés
-					// par notre système d'évaluation par rapport à ceux renvoyés par Jena
-					if (JenaVerification) {
-
-						// On récupère le résultat de la requête, executée avec Jena (donc fiable)
-						jenaResults = processAQueryWithJena(queryString.toString());
-						
-						if(jenaResults.size() != 0){
-							System.out.println("Résultats de Jena : ");
-							System.out.println(jenaResults);
-						}else{
-							System.out.println("Résultats de Jena : aucun");
-						}
-
-						if (jenaResults.size() == 0 && ourResults.size() != 0) {
-							System.out.println("Résultats trouvés alors que Jena n'en retourne aucun, ERREUR !");
-							nbErreurs++;
-						}
-
-						else if (jenaResults.size() != 0 && ourResults.size() == 0) {
-							System.out.println("Aucun résultat trouvé mais Jena en retourne, ERREUR !");
-							nbErreurs++;
-						}
-
-						else if (jenaResults.size() == 0 && ourResults.size() == 0) {
-							System.out.println("Aucun résultat trouvé par notre système et celui de Jena, OK !\n");
-						}
-
-						else if (ourResults.containsAll(jenaResults) && jenaResults.containsAll(ourResults)) {
-							System.out.println("Résultats de notre système validés !\n");
+						if (ourResults.size() != 0) {
+							System.out.println("Résultats de notre système : ");
+							System.out.println(ourResults);
 						} else {
-							System.out.println("Résultats de notre système faux :\n\n");
-							nbErreurs++;
+							System.out.println("Résultats de notre système : aucun");
 						}
+
+						long endStopwatchEvaluateQuery = stopwatchEvaluateQuery.elapsed(TimeUnit.MILLISECONDS);
+						totalTimeEvaluateQuery += endStopwatchEvaluateQuery;
+
+						// Si l'option Jena est activée on vérifie l'exactitude des résultats renvoyés
+						// par notre système d'évaluation par rapport à ceux renvoyés par Jena
+						if (JenaVerification) {
+
+							// On récupère le résultat de la requête, executée avec Jena (donc fiable)
+							jenaResults = processAQueryWithJena(queryString.toString());
+
+							if (jenaResults.size() != 0) {
+								System.out.println("Résultats de Jena : ");
+								System.out.println(jenaResults);
+							} else {
+								System.out.println("Résultats de Jena : aucun");
+							}
+
+							if (jenaResults.size() == 0 && ourResults.size() != 0) {
+								System.out.println("Résultats trouvés alors que Jena n'en retourne aucun, ERREUR !");
+								nbErreurs++;
+							}
+
+							else if (jenaResults.size() != 0 && ourResults.size() == 0) {
+								System.out.println("Aucun résultat trouvé mais Jena en retourne, ERREUR !");
+								nbErreurs++;
+							}
+
+							else if (jenaResults.size() == 0 && ourResults.size() == 0) {
+								System.out.println("Aucun résultat trouvé par notre système et celui de Jena, OK !\n");
+							}
+
+							else if (ourResults.containsAll(jenaResults) && jenaResults.containsAll(ourResults)) {
+								System.out.println("Résultats de notre système validés !\n");
+							} else {
+								System.out.println("Résultats de notre système faux :\n\n");
+								nbErreurs++;
+							}
+						}
+
+						queryString.setLength(0); // Reset le buffer de la requête en chaine vide
+
+						// Pour compter combien il y a de requêtes au total:
+						nbRequest++;
 					}
-
-					queryString.setLength(0); // Reset le buffer de la requête en chaine vide
-
-					// Pour compter combien il y a de requêtes au total:
-					nbRequest++;
 				}
+
+				totalTimeReadQuery = stopwatchReadQuery.elapsed(TimeUnit.MILLISECONDS);
 			}
 
-			totalTimeReadQuery = stopwatchReadQuery.elapsed(TimeUnit.MILLISECONDS);
 		}
-
-		//Si la vérification de Jena est activée, on vérifie que l'on eut exactement tous les mêmes résultats
+		// Si la vérification de Jena est activée, on vérifie que l'on eut exactement
+		// tous les mêmes résultats
 		if (JenaVerification && nbErreurs == 0) {
 			System.out.println("*****");
 			System.out.println("****");
@@ -179,7 +189,7 @@ public class Parser {
 			System.out.println("***");
 			System.out.println("****");
 			System.out.println("*****");
-		} else if(JenaVerification && nbErreurs!=0){
+		} else if (JenaVerification && nbErreurs != 0) {
 			System.out.println("*****");
 			System.out.println("****");
 			System.out.println("***");
@@ -244,7 +254,7 @@ public class Parser {
 		ArrayList<String> OurSystemResults = new ArrayList<>();
 		ArrayList<String> OurSystemResultsForCSV = new ArrayList<>();
 
-		// System.out.println("Requête : "+query);
+		System.out.println("Requête : "+query);
 
 		List<StatementPattern> patterns = StatementPatternCollector.process(query.getTupleExpr());
 
@@ -312,15 +322,15 @@ public class Parser {
 		// Si la requête a retourné un résultat
 		if (queryResult.size() != 0) {
 			for (Integer resultat : queryResult) {
-				//System.out.println("Résultat requête (notre système) : "
-				//		+ dictionnaire.getDictionaryIntegerToString().get(resultat));
+				// System.out.println("Résultat requête (notre système) : "
+				// + dictionnaire.getDictionaryIntegerToString().get(resultat));
 				OurSystemResultsForCSV.add(dictionnaire.getDictionaryIntegerToString().get(resultat));
 				OurSystemResults.add(dictionnaire.getDictionaryIntegerToString().get(resultat));
 			}
 			OurSystemResultsForCSV.add("");
 
 		} else { // Si la requête n'a retourné aucun résultat
-			//System.out.println("Résultat requête (notre système) : Aucun résultat");
+			// System.out.println("Résultat requête (notre système) : Aucun résultat");
 			OurSystemResultsForCSV.add("empty");
 		}
 
@@ -350,7 +360,8 @@ public class Parser {
 			for (; results.hasNext();) {
 				QuerySolution soln = results.nextSolution();
 				JenaResults.add(soln.getResource("?v0").toString());
-				//System.out.println("Résultat requête (Jena) : " + soln.getResource("?v0").toString());
+				// System.out.println("Résultat requête (Jena) : " +
+				// soln.getResource("?v0").toString());
 			}
 		}
 		return JenaResults;

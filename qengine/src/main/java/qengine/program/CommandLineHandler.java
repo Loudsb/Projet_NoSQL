@@ -40,12 +40,12 @@ public class CommandLineHandler {
 		Option queries   = Option.builder("queries")
                          .argName("/chemin/vers/dossier/requetes")
                          .hasArg()
-                         .desc("Donner le chemin vers le fichier de requêtes")
+                         .desc("Donner le chemin vers le dossier de requêtes")
                          .build();
 						 //Fichier et non dossier vers requête !
 						 
 		Option data   = Option.builder("data")
-                         .argName("/chemin/vers/dossier/requetes")
+                         .argName("/chemin/vers/fichier/donnees")
                          .hasArg()
                          .desc("Donner le chemin vers le fichier de données")
                          .build();
@@ -87,7 +87,7 @@ public class CommandLineHandler {
 			Parser.queryFile = line.getOptionValue("queries");
 		}
 		else {
-			Parser.queryFile = "./data/STAR_ALL_workload.queryset";
+			Parser.queryFile = "./data/requetesss/";
 		}
 
 		if(line.hasOption("data")) {

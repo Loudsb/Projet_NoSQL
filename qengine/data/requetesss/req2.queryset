@@ -1,0 +1,2 @@
+SELECT ?v0 WHERE {
+    ?v0 <http://schema.org/birthDate> "1988-09-24" . }
