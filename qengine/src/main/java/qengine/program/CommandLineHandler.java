@@ -87,14 +87,14 @@ public class CommandLineHandler {
 			Parser.queryFile = line.getOptionValue("queries");
 		}
 		else {
-			Parser.queryFile = "./data/requetesss/";
+			Parser.queryFile = "data/old_data/";
 		}
 
 		if(line.hasOption("data")) {
 			Parser.dataFile = line.getOptionValue("data");
 		}
 		else {
-			Parser.dataFile = "./data/100K.nt";
+			Parser.dataFile = "data/old_data/100K.nt";
 		}
 
 		if(line.hasOption("output")) {

@@ -27,7 +27,7 @@ public class CSV {
 		String requestFile = Parser.queryFile;
 		String decoupageRequestFile[] = requestFile.split("/");
 		System.out.println(
-				"Nom du fichier qui contient les requêtes : " + decoupageRequestFile[decoupageRequestFile.length - 1]);
+				"Nom du dossier qui contient les requêtes : " + decoupageRequestFile[decoupageRequestFile.length - 1]);
 
 		// nombre de triplets RDF - OK
 		int nbTriplet = MainRDFHandler.getCptTriplet();

@@ -6,8 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -61,11 +59,17 @@ public class Parser {
 	// Variable qui stock combien de temps on a mis à lire notre fichier de données
 	static long totalTimeData = 0;
 
+	//Variable qui va stocker le nombre de résultats des requêtes
+	static ArrayList<Integer> nombreResultatsRequete = new ArrayList<>();
+
+	//Variable qui va stocker le nombre de conditions dans les requêtes
+	static ArrayList<Integer> nombreConditionsRequete = new ArrayList<>();
+
 	// Méthode qui traite chaque requête lue dans {@link #queryFile} avec {@link
 	// #processAQuery(ParsedQuery)}.
 	public ArrayList<String> parseQueries(Dictionnaire dictionnaire, Index index)
 			throws FileNotFoundException, IOException {
-
+	
 		// ArrayList qui va recevoir les résultats de la méthode processAQuery
 		ArrayList<ArrayList<String>> listResultprocessAQuery = new ArrayList<>();
 		// ArrayList qui va contenir les résultats de requêtes, structurés pour le csv
@@ -106,7 +110,7 @@ public class Parser {
 
 					if (line.trim().endsWith("}")) {
 
-						System.out.println("\nRequête numéro " + (nbRequest + 1));
+						//System.out.println("\nRequête numéro " + (nbRequest + 1));
 
 						ParsedQuery query = sparqlParser.parseQuery(queryString.toString(), baseURI);
 
@@ -118,11 +122,17 @@ public class Parser {
 						ourResultsForCSV.addAll(listResultprocessAQuery.get(0));
 						ourResults.addAll(listResultprocessAQuery.get(1));
 
+						if(ourResults.size() <= nombreResultatsRequete.size()){
+							nombreResultatsRequete.set(ourResults.size(), nombreResultatsRequete.get(ourResults.size())+1);
+						}else{
+							System.out.println("Une requête dépasse le nombre de résultats maximum autorisé pour le stockage, ces résultats sont tout de même sauvés dans le .csv");
+						}
+
 						if (ourResults.size() != 0) {
-							System.out.println("Résultats de notre système : ");
-							System.out.println(ourResults);
+							//System.out.println("Résultats de notre système : ");
+							//System.out.println(ourResults);
 						} else {
-							System.out.println("Résultats de notre système : aucun");
+							//System.out.println("Résultats de notre système : aucun");
 						}
 
 						long endStopwatchEvaluateQuery = stopwatchEvaluateQuery.elapsed(TimeUnit.MILLISECONDS);
@@ -254,9 +264,16 @@ public class Parser {
 		ArrayList<String> OurSystemResults = new ArrayList<>();
 		ArrayList<String> OurSystemResultsForCSV = new ArrayList<>();
 
-		System.out.println("Requête : "+query);
+		//System.out.println("Requête : "+query);
 
 		List<StatementPattern> patterns = StatementPatternCollector.process(query.getTupleExpr());
+
+		//On ajoute à la liste qui compte le nombre de conditions des requêtes, cette nouvelle requête
+		if(patterns.size() <= nombreConditionsRequete.size()){
+			nombreConditionsRequete.set(patterns.size(), nombreConditionsRequete.get(patterns.size())+1);
+		}else{
+			System.out.println("Une requête dépasse le nombre de conditions maximum autorisé pour le stockage, cette requête est tout de même exécuté mais son nombre de conditons n'est pas stocké");
+		}
 
 		// Liste qui va contenir le résultat final
 		ArrayList<Integer> queryResult = new ArrayList<>();
@@ -381,6 +398,18 @@ public class Parser {
 
 	public static long getTotalTimeData() {
 		return totalTimeData;
+	}
+
+	public static void initializeArrays(){
+
+		for(int i=0; i<100; i++){
+			nombreResultatsRequete.add(0);
+		}
+
+		for(int i=0; i<10; i++){
+			nombreConditionsRequete.add(0);
+		}
+
 	}
 
 }
