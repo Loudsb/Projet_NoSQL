@@ -12,7 +12,7 @@ public class CSV {
 	public static String directoryPathQueryResults;
 
 	// Délimiteurs qui doivent être dans le fichier CSV
-	public static final String DELIMITER = ", ";
+	public static final String DELIMITER = ",";
 	public static final String SEPARATOR = "\n";
 
 	//Variable qui stocke le nom du fichier dans lequel on va mettre nos données résultats
@@ -176,7 +176,7 @@ public class CSV {
 		final String HEADER = "Requêtes, nombre de résultats, nombre de conditions, doublons?";
 
 		String fileName = "resultFileToSortRequests.csv";
-		String filePath = "/data/" + fileName;
+		String filePath = "data/" + fileName;
 
 		File outFile = new File(filePath);
 		fileCSV = new FileWriter(outFile);
@@ -186,7 +186,7 @@ public class CSV {
 		// Ajouter une nouvelle ligne après l'en-tête
 		fileCSV.append(SEPARATOR);
 
-		fileCSV.close();
+		//fileCSV.close();
 
 	}
 
@@ -197,13 +197,13 @@ public class CSV {
 	//Enlever les doublons
 	public static void sortRequests(HashMap<String, String> param) throws IOException {
 
-		String contenuLigne = param.get("req") + ", " + param.get("nbResults") + ", " + param.get("nbCond") + ", " + param.get("doublon");
+		String contenuLigne = param.get("req") + "," + param.get("nbResults") + "," + param.get("nbCond") + "," + param.get("doublon");
 
 		fileCSV.write(contenuLigne);
 
 		fileCSV.append(SEPARATOR);
 
-		fileCSV.close();
+		//fileCSV.close();
 	}
 
 }

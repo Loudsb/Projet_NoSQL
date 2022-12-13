@@ -51,6 +51,18 @@ final class Main {
 
 		CSV.timeEvaluationInCSV(totalTime);
 
+		CSV.fileCSV.close();
+
+		System.out.println("\n");
+		ResultsAnalysis.analyse();
+		System.out.println("\n");
+
+		ResultsAnalysis.createRequestFileForBenchmarkEraseDouble();
+		ResultsAnalysis.createRequestFileForBenchmarkEraseSomeResultsZero();
+		ResultsAnalysis.createRequestFileForBenchmarkProportionnalNumberConditions();
+		ResultsAnalysis.createRequestFileForBenchmark();
+
+
 	}
 
 }

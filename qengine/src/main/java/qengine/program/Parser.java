@@ -70,9 +70,6 @@ public class Parser {
 	// #processAQuery(ParsedQuery)}.
 	public ArrayList<String> parseQueries(Dictionnaire dictionnaire, Index index)
 			throws FileNotFoundException, IOException {
-
-		//On vide l'hashmap qui récupère les résultats dont on a besoin dans le .csv
-		requestResultsForCSV = new HashMap<String, String>();
 	
 		// ArrayList qui va recevoir les résultats de la méthode processAQuery
 		ArrayList<ArrayList<String>> listResultprocessAQuery = new ArrayList<>();
@@ -106,6 +103,11 @@ public class Parser {
 				 * On considère alors que c'est la fin d'une requête
 				 */
 				{
+
+					//On vide l'hashmap qui récupère les résultats dont on a besoin dans le .csv
+					requestResultsForCSV = new HashMap<String, String>();
+
+
 					ourResults = new ArrayList<>();
 					jenaResults = new ArrayList<>();
 
@@ -123,10 +125,10 @@ public class Parser {
 						if(hashMap.get(queryString.toString()) == null){
 							hashMap.put(queryString.toString(),1);
 							//N'existe pas déjà dans l'hashmap on la garde
-							requestResultsForCSV.put("doublon",String.valueOf(1));
+							requestResultsForCSV.put("doublon",String.valueOf(0));
 						}else{
 							//Existe déjà, c'est un doublon
-							requestResultsForCSV.put("doublon",String.valueOf(0));
+							requestResultsForCSV.put("doublon",String.valueOf(1));
 						}
 
 						ParsedQuery query = sparqlParser.parseQuery(queryString.toString(), baseURI);
@@ -191,7 +193,12 @@ public class Parser {
 
 						// Pour compter combien il y a de requêtes au total:
 						nbRequest++;
+
+						//On appelle la méthode qui ajoute les résultats au CSV
+						CSV.sortRequests(requestResultsForCSV);
+
 					}
+					
 				}
 
 				totalTimeReadQuery = stopwatchReadQuery.elapsed(TimeUnit.MILLISECONDS);
@@ -226,10 +233,6 @@ public class Parser {
 			System.out.println("****");
 			System.out.println("*****");
 		}
-
-		//On appelle la méthode qui ajoute les résultats au CSV
-		CSV.sortRequests(requestResultsForCSV);
-
 
 		return ourResultsForCSV;
 
@@ -342,8 +345,7 @@ public class Parser {
 					// dictionnaire
 
 				queryResult = new ArrayList<>();
-				System.out.println(
-						"Requête échouée, une des ressources de la requête n'est pas présente dans notre dictionnaire.");
+				//System.out.println("Requête échouée, une des ressources de la requête n'est pas présente dans notre dictionnaire.");
 				break;
 			}
 		}
