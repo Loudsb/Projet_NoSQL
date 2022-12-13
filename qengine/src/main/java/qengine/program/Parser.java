@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import org.eclipse.rdf4j.query.algebra.StatementPattern;
@@ -59,16 +60,19 @@ public class Parser {
 	// Variable qui stock combien de temps on a mis à lire notre fichier de données
 	static long totalTimeData = 0;
 
-	//Variable qui va stocker le nombre de résultats des requêtes
-	static ArrayList<Integer> nombreResultatsRequete = new ArrayList<>();
+	//HashMap qui va contenir les informations sur notre requête
+	static HashMap<String, String> requestResultsForCSV = new HashMap<String, String>();
 
-	//Variable qui va stocker le nombre de conditions dans les requêtes
-	static ArrayList<Integer> nombreConditionsRequete = new ArrayList<>();
+	//HashMap que l'on va indexer sur le corps des requêtes et si la clé existe déjà alors on est sur un doublon et on l'enlèvera
+	static HashMap<String, Integer> hashMap = new HashMap<String, Integer>();
 
 	// Méthode qui traite chaque requête lue dans {@link #queryFile} avec {@link
 	// #processAQuery(ParsedQuery)}.
 	public ArrayList<String> parseQueries(Dictionnaire dictionnaire, Index index)
 			throws FileNotFoundException, IOException {
+
+		//On vide l'hashmap qui récupère les résultats dont on a besoin dans le .csv
+		requestResultsForCSV = new HashMap<String, String>();
 	
 		// ArrayList qui va recevoir les résultats de la méthode processAQuery
 		ArrayList<ArrayList<String>> listResultprocessAQuery = new ArrayList<>();
@@ -112,8 +116,21 @@ public class Parser {
 
 						//System.out.println("\nRequête numéro " + (nbRequest + 1));
 
-						ParsedQuery query = sparqlParser.parseQuery(queryString.toString(), baseURI);
+						//On ajoute la requête en entier pour la mettre dans le csv et ensuite trier
+						requestResultsForCSV.put("req", queryString.toString());
 
+						//On ajoute la requête dans l'HashMap pour savoir si c'est un doublon ou pas
+						if(hashMap.get(queryString.toString()) == null){
+							hashMap.put(queryString.toString(),1);
+							//N'existe pas déjà dans l'hashmap on la garde
+							requestResultsForCSV.put("doublon",String.valueOf(1));
+						}else{
+							//Existe déjà, c'est un doublon
+							requestResultsForCSV.put("doublon",String.valueOf(0));
+						}
+
+						ParsedQuery query = sparqlParser.parseQuery(queryString.toString(), baseURI);
+					
 						// Chrono pour calculer le temps qu'on met à évaluer les requêtes
 						Stopwatch stopwatchEvaluateQuery = Stopwatch.createStarted();
 
@@ -122,11 +139,7 @@ public class Parser {
 						ourResultsForCSV.addAll(listResultprocessAQuery.get(0));
 						ourResults.addAll(listResultprocessAQuery.get(1));
 
-						if(ourResults.size() <= nombreResultatsRequete.size()){
-							nombreResultatsRequete.set(ourResults.size(), nombreResultatsRequete.get(ourResults.size())+1);
-						}else{
-							System.out.println("Une requête dépasse le nombre de résultats maximum autorisé pour le stockage, ces résultats sont tout de même sauvés dans le .csv");
-						}
+						requestResultsForCSV.put("nbResults",String.valueOf(ourResults.size()));
 
 						if (ourResults.size() != 0) {
 							//System.out.println("Résultats de notre système : ");
@@ -214,6 +227,10 @@ public class Parser {
 			System.out.println("*****");
 		}
 
+		//On appelle la méthode qui ajoute les résultats au CSV
+		CSV.sortRequests(requestResultsForCSV);
+
+
 		return ourResultsForCSV;
 
 	}
@@ -268,12 +285,7 @@ public class Parser {
 
 		List<StatementPattern> patterns = StatementPatternCollector.process(query.getTupleExpr());
 
-		//On ajoute à la liste qui compte le nombre de conditions des requêtes, cette nouvelle requête
-		if(patterns.size() <= nombreConditionsRequete.size()){
-			nombreConditionsRequete.set(patterns.size(), nombreConditionsRequete.get(patterns.size())+1);
-		}else{
-			System.out.println("Une requête dépasse le nombre de conditions maximum autorisé pour le stockage, cette requête est tout de même exécuté mais son nombre de conditons n'est pas stocké");
-		}
+		requestResultsForCSV.put("nbCond", String.valueOf(patterns.size()));
 
 		// Liste qui va contenir le résultat final
 		ArrayList<Integer> queryResult = new ArrayList<>();
@@ -398,18 +410,6 @@ public class Parser {
 
 	public static long getTotalTimeData() {
 		return totalTimeData;
-	}
-
-	public static void initializeArrays(){
-
-		for(int i=0; i<100; i++){
-			nombreResultatsRequete.add(0);
-		}
-
-		for(int i=0; i<10; i++){
-			nombreConditionsRequete.add(0);
-		}
-
 	}
 
 }

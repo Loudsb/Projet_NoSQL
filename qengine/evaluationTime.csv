@@ -1,2 +1,2 @@
 nom du fichier de données,nom du dossier des requêtes,nombre de triplets RDF,nombre de requêtes,temps de lecture des données (ms),temps de lecture des requêtes (ms),temps création dico (ms),nombre d’index,temps de création des index (ms),temps total d’évaluation du workload (ms),temps total (du début à la fin du programme) (ms)
-data/old_data/100K.nt,data/old_data/,107338,1200,528,178,0,6,19,0,912
+data/old_data/100K.nt,data/old_data/,107338,1200,2047,1288,45,6,323,123,4917
