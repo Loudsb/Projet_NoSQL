@@ -53,10 +53,11 @@ final class Main {
 
 		CSV.fileCSV.close();
 
-		System.out.println("\n");
+		//Cet appel de méthode va permettre d'analyser les requêtes dans le dossier passé en paramètre
 		ResultsAnalysis.analyse();
-		System.out.println("\n");
 
+		
+		//Enlever ces lignes si besoin, elles servent à trier un fichier de requêtes (en fonction de ce que l'on choisi dans la classe ResultsAnalysis)
 		ResultsAnalysis.createRequestFileForBenchmarkEraseDouble();
 		ResultsAnalysis.createRequestFileForBenchmarkEraseSomeResultsZero();
 		ResultsAnalysis.createRequestFileForBenchmarkProportionnalNumberConditions();
