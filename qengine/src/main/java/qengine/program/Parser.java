@@ -491,7 +491,6 @@ public class Parser {
 
 	public void doWarm(Dictionnaire dictionnaire, Index index, int j){
 		float nombreReqWarm = Float.valueOf(nbRequest)*(Float.valueOf(warmNumber)/Float.valueOf(100));
-		System.out.println(nombreReqWarm);
 		for(int i=0; i<(int)nombreReqWarm; i++){
 			processAQuery(parsedQueries.get(i), dictionnaire, index, j);
 		}

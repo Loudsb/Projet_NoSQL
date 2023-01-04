@@ -62,8 +62,6 @@ final class Main {
 		ResultsAnalysis.createRequestFileForBenchmarkEraseSomeResultsZero();
 		ResultsAnalysis.createRequestFileForBenchmarkProportionnalNumberConditions();
 		ResultsAnalysis.createRequestFileForBenchmark();
-
-		System.out.println("Voici les résultats pour la correction et complétude : ");
 	}
 
 }
