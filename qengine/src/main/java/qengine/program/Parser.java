@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.HashMap;
@@ -60,26 +61,170 @@ public class Parser {
 	// Variable qui stock combien de temps on a mis à lire notre fichier de données
 	static long totalTimeData = 0;
 
-	//HashMap qui va contenir les informations sur notre requête
-	static HashMap<String, String> requestResultsForCSV = new HashMap<String, String>();
+	//ArrayList d'HashMap qui va contenir pour chaque requête, une hashmap contenant les informations sur notre requête
+	static ArrayList<HashMap<String, String>> requestResultsForCSV = new ArrayList<>();
 
 	//HashMap que l'on va indexer sur le corps des requêtes et si la clé existe déjà alors on est sur un doublon et on l'enlèvera
 	static HashMap<String, Integer> hashMap = new HashMap<String, Integer>();
 
-	// Méthode qui traite chaque requête lue dans {@link #queryFile} avec {@link
-	// #processAQuery(ParsedQuery)}.
-	public ArrayList<String> parseQueries(Dictionnaire dictionnaire, Index index)
-			throws FileNotFoundException, IOException {
+	//Variables pour obtenir la complétude et la correction
+	static int nbRepJena = 0;
+	static int nbRepSystem = 0;
+
+	public static boolean shuffle;
+	public static boolean warm;
+	public static int warmNumber;
+
+	public ArrayList<ParsedQuery> parsedQueries = new ArrayList<>(); 
+	public ArrayList<String> stringQueriesForJena = new ArrayList<>(); 
+
+	//ArrayList d'ArrayList de String qui va contenir les résultats de Jena
+	ArrayList<ArrayList<String>> allOurResults = new ArrayList<>();
+
+	//ArrayList d'ArrayList de String qui va contenir les résultats de Jena
+	ArrayList<ArrayList<String>> allJenaResults = new ArrayList<>();
 	
+
+	//Méthode principale du parser qui va faire appel aux autres méthodes en prenant en compte les options
+	public ArrayList<String> processusComplet(Dictionnaire dictionnaire, Index index) throws FileNotFoundException, IOException{
+
+		//On parse toutes les requêtes une à une et on les met dans la variable parsedQueries
+		parseQueries();
+
+		//Si l'option warm shuffle est activée
+		if(warm){
+			doWarm(dictionnaire, index, 0);
+		}
+
+		//Si l'option shuffle est activée
+		if(shuffle){
+			doShuffle();
+		}
+
+		// Chrono pour calculer le temps qu'on met à évaluer les requêtes
+		Stopwatch stopwatchEvaluateQuery = Stopwatch.createStarted();
+
+		//On exécute toutes les requêtes, peu importe les autres options
+		ArrayList<String> resultatsForCSV = processQueries(dictionnaire, index);
+
+		long endStopwatchEvaluateQuery = stopwatchEvaluateQuery.elapsed(TimeUnit.MILLISECONDS);
+		totalTimeEvaluateQuery += endStopwatchEvaluateQuery;
+
+		//Si l'option Jena est activée, on exécute toutes les requêtes
+		if(JenaVerification){
+			processQueriesWithJena();
+		}
+
+		//Si l'option Jena est activée, on vérifie tous les résultats et on récupère complétude et correction
+		if(JenaVerification){
+			verificationWithJena();
+		}
+
+		//Doit retourner le contenu de la variable ourResultsForCSV
+		return resultatsForCSV;
+	}
+
+	private ArrayList<String> processQueries(Dictionnaire dictionnaire, Index index) throws IOException {
+
 		// ArrayList qui va recevoir les résultats de la méthode processAQuery
 		ArrayList<ArrayList<String>> listResultprocessAQuery = new ArrayList<>();
+
 		// ArrayList qui va contenir les résultats de requêtes, structurés pour le csv
 		ArrayList<String> ourResultsForCSV = new ArrayList<>();
 
-		// ArrayList qui va contenir les résultats de notre système
-		ArrayList<String> ourResults = new ArrayList<>();
-		// ArrayList qui va contenir les résultats de Jena
-		ArrayList<String> jenaResults = new ArrayList<>();
+		for(int i=0; i<parsedQueries.size(); i++){
+			listResultprocessAQuery = processAQuery(parsedQueries.get(i), dictionnaire, index, i);
+			allOurResults.add(listResultprocessAQuery.get(1));
+			ourResultsForCSV.addAll(listResultprocessAQuery.get(0));
+			requestResultsForCSV.get(i).put("nbResults",String.valueOf(allOurResults.get(i).size()));
+			CSV.sortRequests(requestResultsForCSV.get(i));
+		}
+
+		return ourResultsForCSV; 
+	}
+
+	private void verificationWithJena() {
+
+		if(allJenaResults.size() != allOurResults.size()){
+			System.out.println("Nous n'avons pas évalué autant de réquêtes que Jena ce n'est pas normal");
+		}
+		
+		for(int i=0; i<allJenaResults.size(); i++){
+
+			ArrayList<String> ourResults = allOurResults.get(i);
+			ArrayList<String> jenaResults = allJenaResults.get(i);
+
+			if (jenaResults.size() != 0) {
+				//System.out.println("Résultats de Jena : ");
+				//System.out.println(jenaResults);
+				nbRepJena+=jenaResults.size();
+			} else {
+				//System.out.println("Résultats de Jena : aucun");
+			}
+
+			if (jenaResults.size() == 0 && ourResults.size() != 0) {
+				//System.out.println("Résultats trouvés alors que Jena n'en retourne aucun, ERREUR !");
+				nbErreurs++;
+			}
+
+			else if (jenaResults.size() != 0 && ourResults.size() == 0) {
+				//System.out.println("Aucun résultat trouvé mais Jena en retourne, ERREUR !");
+				nbErreurs++;
+			}
+
+			else if (jenaResults.size() == 0 && ourResults.size() == 0) {
+				//System.out.println("Aucun résultat trouvé par notre système et celui de Jena, OK !\n");
+			}
+
+			else if (ourResults.containsAll(jenaResults) && jenaResults.containsAll(ourResults)) {
+				//System.out.println("Résultats de notre système validés !\n");
+			} else {
+				//System.out.println("Résultats de notre système faux :\n\n");
+				nbErreurs++;
+			}
+
+		}
+
+		System.out.println("Nous avons :"+nbErreurs+" erreurs par rapport à Jena");
+
+		// On vérifie que l'on eut exactement tous les mêmes résultats
+		if (nbErreurs == 0) {
+			System.out.println("*****");
+			System.out.println("****");
+			System.out.println("***");
+			System.out.println("**");
+			System.out.println("*");
+			System.out.println("Tous les résultats retournés par notre système sont identiques à ceux de Jena !");
+			System.out.println("*");
+			System.out.println("**");
+			System.out.println("***");
+			System.out.println("****");
+			System.out.println("*****");
+		} else if (nbErreurs != 0) {
+			System.out.println("*****");
+			System.out.println("****");
+			System.out.println("***");
+			System.out.println("**");
+			System.out.println("*");
+			System.out.println("Tous les résultats retournés par notre système NE SONT PAS identiques à ceux de Jena...");
+			System.out.println("*");
+			System.out.println("**");
+			System.out.println("***");
+			System.out.println("****");
+			System.out.println("*****");
+		}
+	}
+
+	private void processQueriesWithJena() {
+		//Pour chaque String du tableau construit à partir des requêtes
+		//On exécute Jena et on stocke le résultat dans une arraylist d'arraylist de string que l'on utilisera ensuite
+		for(int i=0; i<stringQueriesForJena.size(); i++){
+			allJenaResults.add(processAQueryWithJena(stringQueriesForJena.get(i)));
+		}
+	}
+
+	// Méthode qui traite chaque requête lue
+	public void parseQueries() throws IOException{
 
 		//On va accéder aux fichiers du dossier de requêtes
 		File files = new File(queryFile);
@@ -103,99 +248,48 @@ public class Parser {
 				 * On considère alors que c'est la fin d'une requête
 				 */
 				{
-
-					//On vide l'hashmap qui récupère les résultats dont on a besoin dans le .csv
-					requestResultsForCSV = new HashMap<String, String>();
-
-
-					ourResults = new ArrayList<>();
-					jenaResults = new ArrayList<>();
+					//On vide l'hashmap qui récupère les résultats 
+					HashMap<String, String> resultatsUneRequete = new HashMap<>();
 
 					String line = lineIterator.next();
 					queryString.append(line);
 
 					if (line.trim().endsWith("}")) {
 
-						//System.out.println("\nRequête numéro " + (nbRequest + 1));
-
 						//On ajoute la requête en entier pour la mettre dans le csv et ensuite trier
-						requestResultsForCSV.put("req", queryString.toString());
+						resultatsUneRequete.put("req", queryString.toString());
 
 						//On ajoute la requête dans l'HashMap pour savoir si c'est un doublon ou pas
 						if(hashMap.get(queryString.toString()) == null){
 							hashMap.put(queryString.toString(),1);
 							//N'existe pas déjà dans l'hashmap on la garde
-							requestResultsForCSV.put("doublon",String.valueOf(0));
+							resultatsUneRequete.put("doublon",String.valueOf(0));
 						}else{
 							//Existe déjà, c'est un doublon
-							requestResultsForCSV.put("doublon",String.valueOf(1));
+							resultatsUneRequete.put("doublon",String.valueOf(1));
 						}
 
 						ParsedQuery query = sparqlParser.parseQuery(queryString.toString(), baseURI);
-					
-						// Chrono pour calculer le temps qu'on met à évaluer les requêtes
-						Stopwatch stopwatchEvaluateQuery = Stopwatch.createStarted();
 
-						// Traitement de la requête
-						listResultprocessAQuery = processAQuery(query, dictionnaire, index);
-						ourResultsForCSV.addAll(listResultprocessAQuery.get(0));
-						ourResults.addAll(listResultprocessAQuery.get(1));
+						//On stocke chaque requête parsée dans parsedQueries pour ensuite les exécuter
+						parsedQueries.add(query);
 
-						requestResultsForCSV.put("nbResults",String.valueOf(ourResults.size()));
-
-						if (ourResults.size() != 0) {
-							//System.out.println("Résultats de notre système : ");
-							//System.out.println(ourResults);
-						} else {
-							//System.out.println("Résultats de notre système : aucun");
+						if(JenaVerification){
+							//On stocke chaque requête pour ensuite être exécutée via Jena
+							stringQueriesForJena.add(queryString.toString());
 						}
+						
+						
 
-						long endStopwatchEvaluateQuery = stopwatchEvaluateQuery.elapsed(TimeUnit.MILLISECONDS);
-						totalTimeEvaluateQuery += endStopwatchEvaluateQuery;
-
-						// Si l'option Jena est activée on vérifie l'exactitude des résultats renvoyés
-						// par notre système d'évaluation par rapport à ceux renvoyés par Jena
-						if (JenaVerification) {
-
-							// On récupère le résultat de la requête, executée avec Jena (donc fiable)
-							jenaResults = processAQueryWithJena(queryString.toString());
-
-							if (jenaResults.size() != 0) {
-								System.out.println("Résultats de Jena : ");
-								System.out.println(jenaResults);
-							} else {
-								System.out.println("Résultats de Jena : aucun");
-							}
-
-							if (jenaResults.size() == 0 && ourResults.size() != 0) {
-								System.out.println("Résultats trouvés alors que Jena n'en retourne aucun, ERREUR !");
-								nbErreurs++;
-							}
-
-							else if (jenaResults.size() != 0 && ourResults.size() == 0) {
-								System.out.println("Aucun résultat trouvé mais Jena en retourne, ERREUR !");
-								nbErreurs++;
-							}
-
-							else if (jenaResults.size() == 0 && ourResults.size() == 0) {
-								System.out.println("Aucun résultat trouvé par notre système et celui de Jena, OK !\n");
-							}
-
-							else if (ourResults.containsAll(jenaResults) && jenaResults.containsAll(ourResults)) {
-								System.out.println("Résultats de notre système validés !\n");
-							} else {
-								System.out.println("Résultats de notre système faux :\n\n");
-								nbErreurs++;
-							}
-						}
-
-						queryString.setLength(0); // Reset le buffer de la requête en chaine vide
+						// Reset le buffer de la requête en chaine vide
+						queryString.setLength(0); 
 
 						// Pour compter combien il y a de requêtes au total:
 						nbRequest++;
 
-						//On appelle la méthode qui ajoute les résultats au CSV
-						CSV.sortRequests(requestResultsForCSV);
+						requestResultsForCSV.add(resultatsUneRequete);
+
+						
 
 					}
 					
@@ -205,37 +299,6 @@ public class Parser {
 			}
 
 		}
-		// Si la vérification de Jena est activée, on vérifie que l'on eut exactement
-		// tous les mêmes résultats
-		if (JenaVerification && nbErreurs == 0) {
-			System.out.println("*****");
-			System.out.println("****");
-			System.out.println("***");
-			System.out.println("**");
-			System.out.println("*");
-			System.out.println("Tous les résultats retournés par notre système sont identiques à ceux de Jena !");
-			System.out.println("*");
-			System.out.println("**");
-			System.out.println("***");
-			System.out.println("****");
-			System.out.println("*****");
-		} else if (JenaVerification && nbErreurs != 0) {
-			System.out.println("*****");
-			System.out.println("****");
-			System.out.println("***");
-			System.out.println("**");
-			System.out.println("*");
-			System.out
-					.println("Tous les résultats retournés par notre système NE SONT PAS identiques à ceux de Jena...");
-			System.out.println("*");
-			System.out.println("**");
-			System.out.println("***");
-			System.out.println("****");
-			System.out.println("*****");
-		}
-
-		return ourResultsForCSV;
-
 	}
 
 	/**
@@ -277,7 +340,7 @@ public class Parser {
 	 * pouvoir les mettre dans le fichier CSV
 	 */
 	public static ArrayList<ArrayList<String>> processAQuery(ParsedQuery query, Dictionnaire dictionnaire,
-			Index index) {
+			Index index, int numLigneForResultsCSV) {
 
 		// ArrayList pour les résultats
 		ArrayList<ArrayList<String>> twoLists = new ArrayList<>();
@@ -288,7 +351,9 @@ public class Parser {
 
 		List<StatementPattern> patterns = StatementPatternCollector.process(query.getTupleExpr());
 
-		requestResultsForCSV.put("nbCond", String.valueOf(patterns.size()));
+		if(!warm){
+			requestResultsForCSV.get(numLigneForResultsCSV).put("nbCond", String.valueOf(patterns.size()));
+		}
 
 		// Liste qui va contenir le résultat final
 		ArrayList<Integer> queryResult = new ArrayList<>();
@@ -350,7 +415,8 @@ public class Parser {
 			}
 		}
 
-		// Si la requête a retourné un résultat
+		if(!warm){
+			// Si la requête a retourné un résultat
 		if (queryResult.size() != 0) {
 			for (Integer resultat : queryResult) {
 				// System.out.println("Résultat requête (notre système) : "
@@ -367,6 +433,11 @@ public class Parser {
 
 		twoLists.add(OurSystemResultsForCSV);
 		twoLists.add(OurSystemResults);
+		
+	}else{
+		//System.out.println("Je suis une requête warm !");
+	}
+		
 
 		return twoLists;
 	}
@@ -412,6 +483,22 @@ public class Parser {
 
 	public static long getTotalTimeData() {
 		return totalTimeData;
+	}
+
+	public void doShuffle(){
+		Collections.shuffle(parsedQueries);
+	}
+
+	public void doWarm(Dictionnaire dictionnaire, Index index, int j){
+		float nombreReqWarm = Float.valueOf(nbRequest)*(Float.valueOf(warmNumber)/Float.valueOf(100));
+		System.out.println(nombreReqWarm);
+		for(int i=0; i<(int)nombreReqWarm; i++){
+			processAQuery(parsedQueries.get(i), dictionnaire, index, j);
+		}
+		
+		//Je remets processQuery normalement pour la suite de l'exécution
+		warm = false;
+
 	}
 
 }

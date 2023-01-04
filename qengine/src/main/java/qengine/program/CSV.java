@@ -136,6 +136,10 @@ public class CSV {
 		fileCSV.append(DELIMITER);
 		numRequete++;
 
+		for(int i=0; i<results.size(); i++){
+			System.out.println(results.get(i));
+		}
+
 		for (int i = 0; i < results.size() - 1; i++) {
 			if (results.get(i) == "") {
 				fileCSV.append(SEPARATOR);

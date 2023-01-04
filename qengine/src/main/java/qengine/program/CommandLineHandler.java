@@ -1,5 +1,7 @@
 package qengine.program;
 
+import java.util.Collections;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -114,18 +116,18 @@ public class CommandLineHandler {
 		}
 
 		if(line.hasOption("warm")) {
-    		//int pourcentage = Integer.parseInt(line.getOptionValue("X"));
-			//TODO next time
+			Parser.warm =true;
+			Parser.warmNumber = Integer.parseInt(line.getOptionValue("warm"));
 		}
 		else {
-    		
+    		Parser.warm = false;
 		}
 
 		if(line.hasOption("shuffle")) {
-			//TODO next time    		
+			Parser.shuffle = true;	  		
 		}
 		else {
-    		
+    		Parser.shuffle = false;
 		}
 
 		if(line.hasOption("export_query_results")) {

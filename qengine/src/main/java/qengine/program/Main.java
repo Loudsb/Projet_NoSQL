@@ -41,7 +41,7 @@ final class Main {
 
 		// On parse les requêtes puis on les exécute une à une et on récupère une
 		// ArrayList contenant tous les résultats
-		ArrayList<String> results = parser.parseQueries(dictionary, index);
+		ArrayList<String> results = parser.processusComplet(dictionary, index);
 
 		// Mettre les résultats dans un fichier CSV
 		CSV.putResultInCSV(results);
@@ -63,7 +63,7 @@ final class Main {
 		ResultsAnalysis.createRequestFileForBenchmarkProportionnalNumberConditions();
 		ResultsAnalysis.createRequestFileForBenchmark();
 
-
+		System.out.println("Voici les résultats pour la correction et complétude : ");
 	}
 
 }

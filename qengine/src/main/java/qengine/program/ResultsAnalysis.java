@@ -71,11 +71,11 @@ public class ResultsAnalysis {
             dataRow = CSVFile.readLine();
         }
 
-        for(int i=0; i<hashMapNbResults.size(); i++){
+        /*for(int i=0; i<hashMapNbResults.size(); i++){
             if(hashMapNbResults.get(i)!=0){
                 System.out.println("Le nombre de requêtes ayant "+i+" résultats est de"+hashMapNbResults.get(i));
             }
-        }
+        }*/
         
         HashMap<Integer, Integer> histogramme = new HashMap<>();
         int intervalle = 1;
@@ -94,9 +94,9 @@ public class ResultsAnalysis {
             }  
         } 
 
-        for(int j = 1 ; j < histogramme.size(); j++){
+        /*for(int j = 1 ; j < histogramme.size(); j++){
             System.out.println(histogramme.get(j));
-        }
+        }*/
 
 
         //Quelques affichages pour expliquer le fichier que l'on vient d'analyser
